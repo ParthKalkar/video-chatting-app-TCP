@@ -216,7 +216,7 @@ class CallListeningThread(threading.Thread):
         print("Correspondent said their IP is " + correspondent_ip)
 
         # send my ip
-        connection.sendall(bytes(get_my_public_ip()))
+        connection.sendall(bytes(get_my_public_ip(), 'utf-8'))
 
         # ACK
         msg = connection.recv(1024)
