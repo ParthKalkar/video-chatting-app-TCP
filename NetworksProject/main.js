@@ -3,7 +3,7 @@ const url = require('url');
 const path = require('path');
 
 
-const{app, BrowserWindow, Menu} = electron;
+const{app, BrowserWindow, Menu, ipcMain} = electron;
 let mainwindow;
 let addWindow;
 
@@ -34,8 +34,6 @@ app.on('ready', function(){
 function createAddWindow(){
      // Create new window
      addWindow = new BrowserWindow({
-         width: 200,
-         height: 200,
          title: 'Calling'
 
      });
@@ -46,8 +44,12 @@ function createAddWindow(){
          slashes: true
  }));
 
-}
+    // Garbage collection handle
+    addWindow.on('close', function(){
+        addWindow = null;
+    });
 
+}
 
 // Create menu template
 const mainMenuTemplate = [
@@ -89,3 +91,30 @@ const mainMenuTemplate = [
         }
     }
 ]
+
+// If mac, add empty object to menu
+if(process.platform == 'darwin'){
+    mainMenuTemplate.unshift({});
+}
+
+// Add Developer tools item if not in production
+if(process.env.NODE_ENV !=='production'){
+    mainMenuTemplate.push({
+        label: 'Developer Tools',
+        
+        submenu:[
+            {
+            label: 'Toggle DevTools',
+            accelerator: process.platform == 'darwin' ? 'Command+I' : 
+            'Ctrl+I', 
+            click(item, focusedWindow){
+                focusedWindow.toggleDevTools();
+
+            }
+        },
+        {
+            role: 'reload'
+        }
+    ]
+    })
+}

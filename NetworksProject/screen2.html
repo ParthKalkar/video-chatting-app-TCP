@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+<style>
+    body{
+        align-items: center;
+        
+    }
+</style>
+
+
 <html lang="en">
 <head>
     <title>Calling</title>
@@ -7,11 +15,25 @@
     <form>
         <div>
             <label>Enter </label>
-            <input type="number" id="caller" autofocus>
+            <input type="text" id="caller" autofocus>
         </div>
         <button type="submit">Enter the number to call</button>
 
     </form>
+
+    <script>
+        const electron = require('electron');
+        const {ipcRenderer} = electron;
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', submitForm);
+
+        function submitForm(e){
+            e.preventDefault();
+            const caller = document.querySelector('#caller').value;
+            ipcRenderer.send('caller:add', caller)
+        }
+        </script>
     
 </body>
 </html>
