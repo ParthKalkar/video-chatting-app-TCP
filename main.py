@@ -7,11 +7,17 @@ from receive_audio import *
 # Video streaming port is 12345
 # Audio streaming port is 12346
 
+# CURRENT TODOLIST
+# todo make the global variables part of classes
+# todo solve all warnings
+# todo plan the structure of files
+# todo ask the user if they wanna make a call or receive a call (makes it easier when testing)
+# todo review the compatibility and performance of the libraries used (opencv and pyaudio)
+
 environ["QT_DEVICE_PIXEL_RATIO"] = "0"
 environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 environ["QT_SCREEN_SCALE_FACTORS"] = "1"
 environ["QT_SCALE_FACTOR"] = "1"
-
 
 
 class SendAudioFrameThread(threading.Thread):
@@ -195,15 +201,15 @@ class CallListeningThread(threading.Thread):
         audio_server = SendAudioFrameThread(11, "Send Video", 11)
 
         video_server.start()
-        #audio_server.start()
+        # audio_server.start()
 
         # receive ip
         ip = connection.recv(1024)
         global correspondent_ip
         print(address)
-        correspondent_ip = '10.91.55.233' # '10.241.1.222' #ip.decode('utf-8')
+        correspondent_ip = '10.91.55.233'  # '10.241.1.222' #ip.decode('utf-8')
         print("Correspondent said their IP is " + correspondent_ip)
-        #print("However their local IP is : ")
+        # print("However their local IP is : ")
 
         # send my ip
         connection.sendall(bytes(get_my_public_ip(), 'utf-8'))
@@ -214,27 +220,27 @@ class CallListeningThread(threading.Thread):
 
         t1 = ReceiveFrameThread(1, "Receive frame", 1)
         t2 = DisplayFrameThread(2, "Display frame", 2)
-        #t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3)
-        #t4 = PlayAudioThread(4, "Play Audio", 4)
+        # t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3)
+        # t4 = PlayAudioThread(4, "Play Audio", 4)
 
         t1.start()
         t2.start()
-        #t3.start()
-        #t4.start()
+        # t3.start()
+        # t4.start()
 
         t1.join()
         t2.join()
-        #t3.join()
-        #t4.join()
+        # t3.join()
+        # t4.join()
         video_server.join()
-        #audio_server.join()
+        # audio_server.join()
         print("Exiting the call listening thread.")
 
 
 def get_my_public_ip():
-    #return '85.26.165.173'
-    return '10.91.49.174' #University student
-    return '10.241.1.187' #Connecting to ethernet in my room
+    # return '85.26.165.173'
+    # return '10.91.49.174'  # University student
+    # return '10.241.1.187'  # Connecting to ethernet in my room
 
     r = requests.get(r'http://jsonip.com')
     ip = r.json()['ip']
@@ -242,9 +248,15 @@ def get_my_public_ip():
     return ip
 
 
-
-
-
+def get_my_private_ip():
+    # print(system('ifconfig'))
+    # todo Understand what the following code does
+    # todo Does this require Internet access to work?
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    res = s.getsockname()[0]
+    s.close()
+    return res
 
 
 print("Welcome to the best video chat app in the world!")
@@ -264,13 +276,15 @@ t2.join()
 t3.join()
 t4.join()'''
 
-t1 = CallListeningThread(30,"Make a call", 30)
-t2 = InitiateCallThread(31,"Init call", 31)
+print(get_my_private_ip())
 
-t1.start()
-#t2.start()
-
-t1.join()
-#t2.join()
+# t1 = CallListeningThread(30,"Make a call", 30)
+# t2 = InitiateCallThread(31,"Init call", 31)
+#
+# t1.start()
+# t2.start()
+#
+# t1.join()
+# t2.join()
 
 print("Exiting main thread")
