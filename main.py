@@ -2,6 +2,8 @@ from os import environ
 import requests
 from receive_video import *
 from receive_audio import *
+from audio_server import *
+from video_server import *
 
 # Call listening port is 12344
 # Video streaming port is 12345
@@ -12,107 +14,12 @@ from receive_audio import *
 # todo solve all warnings
 # todo plan the structure of files
 # todo review the compatibility and performance of the libraries used (opencv and pyaudio)
+# todo fix the thread names and numbers
 
 environ["QT_DEVICE_PIXEL_RATIO"] = "0"
 environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 environ["QT_SCREEN_SCALE_FACTORS"] = "1"
 environ["QT_SCALE_FACTOR"] = "1"
-
-
-class SendAudioFrameThread(threading.Thread):
-    def __init__(self, threadID, name, counter):
-        threading.Thread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.counter = counter
-
-    def run(self) -> None:
-        CHUNK = 4096
-        FORMAT = pyaudio.paInt16
-        CHANNELS = 1
-        RATE = 16000
-
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
-        port = 12346
-        IP = ''  # socket.gethostbyname(socket.gethostname())  # '192.168.0.105'
-        print("Server IP : " + IP)
-        s.bind((IP, port))
-        s.listen(10)
-
-        print('Socket for audio created and listening.')
-
-        connection, address = s.accept()
-
-        print('Connection for audio from ' + str(address))
-
-        p = pyaudio.PyAudio()
-
-        stream = p.open(format=FORMAT,
-                        channels=CHANNELS,
-                        rate=RATE,
-                        input=True,
-                        frames_per_buffer=CHUNK)
-
-        stream.start_stream()
-
-        while True:
-            try:
-                data = stream.read(CHUNK)
-            except Exception as e:
-                print(e)
-                break
-            connection.sendall(data)
-
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-        s.close()
-
-
-class SendFrameThread(threading.Thread):
-    def __init__(self, threadID, name, counter):
-        threading.Thread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.counter = counter
-
-    def run(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
-        port = 12345
-        IP = ''  # socket.gethostbyname(socket.gethostname()) #'192.168.0.105'
-        print("Server IP : " + IP)
-        s.bind((IP, port))
-        s.listen(10)
-
-        print('Socket created and listening.')
-
-        connection, address = s.accept()
-
-        print('Connection from ' + str(address))
-
-        cap = cv2.VideoCapture(0)
-
-        print('Established webcam stream.')
-
-        ret, frame = cap.read()
-
-        frame = pickle.dumps(frame)
-
-        size = len(frame)
-
-        connection.sendall(bytes(str(size), 'utf-8'))
-
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            frame = pickle.dumps(frame)
-            connection.sendall(frame)
-            # print("Frame sent. (size=" + str(len(frame)) + ")")
-            time.sleep(0.01)
-
-        print('Connection terminated !')
-        s.close()
 
 
 class InitiateCallThread(threading.Thread):
@@ -271,8 +178,8 @@ while 1:
     else:
         print("Invalid input /!\\ please try again.")
 
-if choice == 'y':
-    t1 = CallListeningThread(30, "Make a call", 30)
+if choice == 'n':
+    t1 = CallListeningThread(30, "Listen for call", 30)
     t1.start()
     t1.join()
 else:
