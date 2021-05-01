@@ -56,11 +56,20 @@ class DisplayFrameThread(threading.Thread):
 
     def run(self) -> None:
         print("displaying frame thread started")
-        for i in range(1000000):
+        while 1:
             global video_buffer
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
                 time.sleep(0.01)
                 continue
+
+            # If there is more than 1 second of video in the buffer, skip it (assuming 25 fps)
+            # todo see if this is actually useful, because the buffer itself is not the bottleneck
+            if len(video_buffer)>frame_size*25:
+                video_buffer_lock.acquire()
+                video_buffer = b""
+                video_buffer_lock.release()
+                continue
+
             video_buffer_lock.acquire()
             nextframe = video_buffer[:frame_size]
             video_buffer = video_buffer[frame_size:]
