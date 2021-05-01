@@ -39,6 +39,7 @@ class SendFrameThread(threading.Thread):
         while True:
             ret, frame = cap.read()
             if not ret:
+                print("ERROR : couldn't read from webcam ! (Unknown reason)")
                 break
             frame = pickle.dumps(frame)
             connection.sendall(frame)
