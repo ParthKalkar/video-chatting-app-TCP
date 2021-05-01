@@ -1,0 +1,58 @@
+* {
+    margin: 0 px;
+    padding: 0px;
+    box-sizing: border-box;
+    background-color: #1C2127;
+}  
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+button {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* __________________ Common CSS_____________________ */
+.title {
+    display: flex;
+    width: 40%;
+    height: 12vh;
+    margin: auto;
+    align-items: center;
+    color: #E5E5E5;
+}
+.footer {
+    position: absolute;
+    color: #E5E5E5;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+    bottom: 10px;
+    left: 60px;
+
+}
+
+.bkimage {
+    position: absolute;
+    top:0px;
+    right: 0px;
+    z-index: -1;
+    height: 100%;
+    width: 100%;
+    
+}
+/* __________________ Home page CSS_____________________ */
+
+
+
+
+
+/* __________________ Ring page CSS_____________________ */
+
+.person-icon {
+    position: absolute;
+}
+
+
+
+
+/* __________________ Call page CSS_____________________ */
