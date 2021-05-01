@@ -1,8 +1,7 @@
-import threading
-import pickle
-import socket
+from root import *
 import cv2
 import time
+import pickle
 
 
 video_buffer = b""
