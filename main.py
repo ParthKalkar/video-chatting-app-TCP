@@ -116,7 +116,7 @@ class SendFrameThread(threading.Thread):
             frame = pickle.dumps(frame)
             connection.sendall(frame)
             # print("Frame sent. (size=" + str(len(frame)) + ")")
-            time.sleep(0.005)
+            time.sleep(0.01)
 
         print('Connection terminated !')
         s.close()
@@ -207,16 +207,18 @@ class CallListeningThread(threading.Thread):
         audio_server = SendAudioFrameThread(11, "Send Video", 11)
 
         video_server.start()
-        audio_server.start()
+        #audio_server.start()
 
         # receive ip
         ip = connection.recv(1024)
         global correspondent_ip
-        correspondent_ip = ip.decode('utf-8')
+        print(address)
+        correspondent_ip = '10.91.55.233' # '10.241.1.222' #ip.decode('utf-8')
         print("Correspondent said their IP is " + correspondent_ip)
+        #print("However their local IP is : ")
 
         # send my ip
-        connection.sendall(bytes(get_my_public_ip()))
+        connection.sendall(bytes(get_my_public_ip(), 'utf-8'))
 
         # ACK
         msg = connection.recv(1024)
@@ -224,25 +226,28 @@ class CallListeningThread(threading.Thread):
 
         t1 = ReceiveFrameThread(1, "Receive frame", 1)
         t2 = DisplayFrameThread(2, "Display frame", 2)
-        t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3)
-        t4 = PlayAudioThread(4, "Play Audio", 4)
+        #t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3)
+        #t4 = PlayAudioThread(4, "Play Audio", 4)
 
         t1.start()
         t2.start()
-        t3.start()
-        t4.start()
+        #t3.start()
+        #t4.start()
 
         t1.join()
         t2.join()
-        t3.join()
-        t4.join()
+        #t3.join()
+        #t4.join()
         video_server.join()
-        audio_server.join()
+        #audio_server.join()
         print("Exiting the call listening thread.")
 
 
 def get_my_public_ip():
-    # return '127.0.0.1'
+    #return '85.26.165.173'
+    return '10.91.49.174' #University student
+    return '10.241.1.187' #Connecting to ethernet in my room
+
     r = requests.get(r'http://jsonip.com')
     ip = r.json()['ip']
     print('Your IP is', ip)
@@ -345,6 +350,7 @@ class ReceiveFrameThread(threading.Thread):
                 video_buffer += packet
                 # print('Size of video_buffer received  : ' + str(len(video_buffer)))
                 video_buffer_lock.release()
+                time.sleep(0.01)
         print('Connection terminated !')
         s.close()
 
@@ -361,7 +367,7 @@ class DisplayFrameThread(threading.Thread):
         for i in range(1000000):
             global video_buffer
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
-                time.sleep(0.005)
+                time.sleep(0.01)
                 continue
             video_buffer_lock.acquire()
             nextframe = video_buffer[:frame_size]
@@ -397,9 +403,9 @@ t1 = CallListeningThread(30,"Make a call", 30)
 t2 = InitiateCallThread(31,"Init call", 31)
 
 t1.start()
-t2.start()
+#t2.start()
 
 t1.join()
-t2.join()
+#t2.join()
 
 print("Exiting main thread")
