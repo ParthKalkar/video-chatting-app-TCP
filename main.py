@@ -11,7 +11,6 @@ from receive_audio import *
 # todo make the global variables part of classes
 # todo solve all warnings
 # todo plan the structure of files
-# todo ask the user if they wanna make a call or receive a call (makes it easier when testing)
 # todo review the compatibility and performance of the libraries used (opencv and pyaudio)
 
 environ["QT_DEVICE_PIXEL_RATIO"] = "0"
@@ -125,7 +124,7 @@ class InitiateCallThread(threading.Thread):
 
     def run(self) -> None:
         print("You can either call someone or wait for someone to call you.")
-        my_ip = get_my_public_ip()
+        my_ip = get_my_private_ip()
         print("In case you want someone to call you, give them your IP : " + my_ip)
         ip = input("If you wanna call someone, just enter their IP address : ")
 
@@ -186,7 +185,7 @@ class CallListeningThread(threading.Thread):
     def run(self) -> None:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
         port = 12344
-        IP = ''  # socket.gethostbyname(socket.gethostname())  # '192.168.0.105'
+        IP = ''
         s.bind((IP, port))
         s.listen(10)
         print("Listening for incoming calls.")
@@ -207,12 +206,12 @@ class CallListeningThread(threading.Thread):
         ip = connection.recv(1024)
         global correspondent_ip
         print(address)
-        correspondent_ip = '10.91.55.233'  # '10.241.1.222' #ip.decode('utf-8')
+        correspondent_ip = ip.decode('utf-8')
         print("Correspondent said their IP is " + correspondent_ip)
         # print("However their local IP is : ")
 
         # send my ip
-        connection.sendall(bytes(get_my_public_ip(), 'utf-8'))
+        connection.sendall(bytes(get_my_private_ip(), 'utf-8'))
 
         # ACK
         msg = connection.recv(1024)
@@ -261,30 +260,24 @@ def get_my_private_ip():
 
 print("Welcome to the best video chat app in the world!")
 
-'''t1 = ReceiveFrameThread(1, "Receive frame", 1)
-t2 = DisplayFrameThread(2, "Display frame", 2)
-t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3)
-t4 = PlayAudioThread(4, "Play Audio", 4)
+print("Your private IP address : " + str(get_my_private_ip()))
 
-t1.start()
-t2.start()
-t3.start()
-t4.start()
+choice = -1
+while 1:
+    # global choice
+    choice = input("Do you wanna make a call? (y/n) : ")
+    if choice == 'y' or choice == 'n':
+        break
+    else:
+        print("Invalid input /!\\ please try again.")
 
-t1.join()
-t2.join()
-t3.join()
-t4.join()'''
-
-print(get_my_private_ip())
-
-# t1 = CallListeningThread(30,"Make a call", 30)
-# t2 = InitiateCallThread(31,"Init call", 31)
-#
-# t1.start()
-# t2.start()
-#
-# t1.join()
-# t2.join()
+if choice == 'y':
+    t1 = CallListeningThread(30, "Make a call", 30)
+    t1.start()
+    t1.join()
+else:
+    t2 = InitiateCallThread(30, "Make a call", 30)
+    t2.start()
+    t2.join()
 
 print("Exiting main thread")
