@@ -2,6 +2,7 @@ from root import *
 import cv2
 import time
 import pickle
+from datetime import datetime
 
 
 video_buffer = b""
@@ -22,7 +23,7 @@ class ReceiveFrameThread(threading.Thread):
         IP = correspondent_ip
         s.connect((IP, port))
 
-        print('Connection established.')
+        print('Connection established (video receiver).')
 
         size = s.recv(1024)
 
@@ -31,19 +32,31 @@ class ReceiveFrameThread(threading.Thread):
 
         print('Frame size in bytes : ' + str(size))
 
-        for i in range(100000000):
-            while True:
-                packet = s.recv(4096)
-                if not packet:
-                    print("No packet received !!!!")
-                    break
-                video_buffer_lock.acquire()
-                global video_buffer
-                video_buffer += packet
-                # print('Size of video_buffer received  : ' + str(len(video_buffer)))
-                video_buffer_lock.release()
-                time.sleep(0.01)
-        print('Connection terminated !')
+        frame_count = 0
+        while True:
+            packet = s.recv(4096)
+            if not packet:
+                print("No packet received !!!! Exiting the video receiving thread.")
+                break
+            # This part is synchronized with the video server (every 25 frames)
+            # todo consider that the latency is actually way bigger for a frame because it has many packets
+            # todo fix the problem when the hosts don't have the same timezone
+            if frame_count == 25:
+                sending_time = pickle.loads(packet)
+                delta = datetime.now() - sending_time
+                latency = delta.total_seconds()
+
+                frame_count = 0
+                print("Current packet latency : " + str(latency))
+                print("Estimated video latency : " + str(latency*(frame_size/4096)))
+
+            video_buffer_lock.acquire()
+            global video_buffer
+            video_buffer += packet
+            # print('Size of video_buffer received  : ' + str(len(video_buffer)))
+            video_buffer_lock.release()
+            time.sleep(0.01)
+        print('Connection terminated (video receiving thread)!')
         s.close()
 
 
@@ -55,12 +68,21 @@ class DisplayFrameThread(threading.Thread):
         self.counter = counter
 
     def run(self) -> None:
-        print("displaying frame thread started")
-        for i in range(1000000):
+        print("Displaying frame thread started")
+        while 1:
             global video_buffer
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
                 time.sleep(0.01)
                 continue
+
+            # If there is more than 1 second of video in the buffer, skip it (assuming 25 fps)
+            # todo see if this is actually useful, because the buffer itself is not the bottleneck
+            if len(video_buffer)>frame_size*25:
+                video_buffer_lock.acquire()
+                video_buffer = b""
+                video_buffer_lock.release()
+                continue
+
             video_buffer_lock.acquire()
             nextframe = video_buffer[:frame_size]
             video_buffer = video_buffer[frame_size:]

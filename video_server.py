@@ -2,6 +2,7 @@ from root import *
 import time
 import cv2
 import pickle
+from datetime import datetime
 
 class SendFrameThread(threading.Thread):
     def __init__(self, threadID, name, counter):
@@ -36,11 +37,19 @@ class SendFrameThread(threading.Thread):
 
         connection.sendall(bytes(str(size), 'utf-8'))
 
+        frame_count = 0
+
         while True:
+            if frame_count == 25:
+                connection.sendall(pickle.dumps(datetime.now()))
+                frame_count = 0
+                continue
             ret, frame = cap.read()
             if not ret:
+                print("ERROR : couldn't read from webcam ! (Unknown reason)")
                 break
             frame = pickle.dumps(frame)
+            frame_count += 1
             connection.sendall(frame)
             # print("Frame sent. (size=" + str(len(frame)) + ")")
             time.sleep(0.01)
