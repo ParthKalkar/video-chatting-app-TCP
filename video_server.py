@@ -5,8 +5,8 @@ import pickle
 from datetime import datetime
 
 def resize_image(src):
-    width = int(src.shape[1] * 0.3)
-    height = int(src.shape[0] * 0.3)
+    width = int(src.shape[1] * 0.1)
+    height = int(src.shape[0] * 0.1)
 
     new_size = (width, height)
 
