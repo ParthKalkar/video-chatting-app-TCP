@@ -49,9 +49,19 @@ button {
 /* __________________ Ring page CSS_____________________ */
 
 .person-icon {
-    position: absolute;
+    display: flex;
+    width: 23%;
+    margin: auto;
+    align-items: center;
 }
 
+.calling-icons {
+    display: flex;
+    width: 23%;
+    margin: auto;
+    align-items: center; 
+    justify-content: space-around;
+}
 
 
 
