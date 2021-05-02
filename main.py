@@ -4,6 +4,7 @@ from receive_video import *
 from receive_audio import *
 from audio_server import *
 from video_server import *
+from database import *
 
 # Call listening port is 12344
 # Video streaming port is 12345
@@ -31,7 +32,19 @@ class InitiateCallThread(threading.Thread):
 
     def run(self) -> None:
         my_ip = get_my_private_ip()
-        ip = input("If you wanna call someone, just enter their IP address : ")
+        online_users = get_online_users()
+        print("You can call someone either by choosing their number in the list below")
+        if online_users is None:
+            print("Looks like no one is online right now, go and talk to people IRL instead.")
+            return
+
+        online_users = list(online_users)
+        for i in range(len(online_users)):
+            print(str(i+1) + " - " + str(online_users[i]['name']))
+
+        index = int(input("Enter the number of the user you wanna call : "))
+
+        ip = online_users[index-1]['ip']
 
         print("Initiating a call with " + ip)
 
@@ -182,6 +195,11 @@ def get_my_private_ip():
 
 print("Welcome to the best video chat app in the world!")
 
+# add the username to db and make him online
+username = input("First of all, I would like to know your name : ")
+signup(username)
+go_online(username, get_my_private_ip())
+
 print("Your private IP address : " + str(get_my_private_ip()))
 
 choice = -1
@@ -201,5 +219,9 @@ else:
     t_listen = InitiateCallThread(30, "Make a call", 30)
     t_listen.start()
     t_listen.join()
+
+# This will delete the user after he finishes
+print("Signing off user")
+go_offline(username)
 
 print("Exiting main thread")
