@@ -52,6 +52,7 @@ class ReceiveFrameThread(threading.Thread):
                 print("Current packet latency : " + str(latency))
                 print("Estimated video latency : " + str(latency * (frame_size / 4096)))
 
+            frame_count += 1
             video_buffer_lock.acquire()
             global video_buffer
             video_buffer += packet
