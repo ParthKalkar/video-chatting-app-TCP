@@ -71,9 +71,13 @@ class SendFrameThread(threading.Thread):
                 break
             frame = pickle.dumps(frame)
             frame_count += 1
+            before_transmission = datetime.now()
             connection.sendall(frame)
-            # print("Frame sent. (size=" + str(len(frame)) + ")")
-            time.sleep(0.05)
+            transmission_delay = datetime.now() - before_transmission
+            transmission_delay = transmission_delay.total_seconds()
+            if frame_count == 24:
+                print("The transmission delay is : " + str(transmission_delay))
+            time.sleep(transmission_delay)  # todo not sure if this helps, or if the transmission delay is even relevant
 
         s.close()
         print('Exiting video server.')
