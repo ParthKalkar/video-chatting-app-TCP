@@ -49,4 +49,4 @@ class SendAudioFrameThread(threading.Thread):
         stream.close()
         p.terminate()
         s.close()
-
+        print("Exiting audio server.")

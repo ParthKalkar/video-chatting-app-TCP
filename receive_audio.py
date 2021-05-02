@@ -22,7 +22,7 @@ class ReceiveAudioFrameThread(threading.Thread):
         IP = correspondent_ip
         s.connect((IP, port))
 
-        print('Connection established for audio.')
+        print('Connection established for audio. (Audio receiver)')
         audio_data = s.recv(CHUNK)
         while audio_data != "":
             global audio_buffer
@@ -34,6 +34,7 @@ class ReceiveAudioFrameThread(threading.Thread):
             except socket.error:
                 print("Server disconnected.")
                 break
+        print("Exiting audio receiving thread.")
 
 
 class PlayAudioThread(threading.Thread):
@@ -66,3 +67,4 @@ class PlayAudioThread(threading.Thread):
         stream.stop_stream()
         stream.close()
         p.terminate()
+        print("Audio playing thread terminated.")

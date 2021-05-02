@@ -56,7 +56,7 @@ class ReceiveFrameThread(threading.Thread):
             # print('Size of video_buffer received  : ' + str(len(video_buffer)))
             video_buffer_lock.release()
             time.sleep(0.01)
-        print('Connection terminated (video receiving thread)!')
+        print('Exiting video receiving thread.')
         s.close()
 
 
@@ -94,3 +94,4 @@ class DisplayFrameThread(threading.Thread):
             cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
             cv2.imshow('frame', frame)
             cv2.waitKey(1)
+        print("Exiting video playing thread.")

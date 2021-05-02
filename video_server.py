@@ -54,6 +54,6 @@ class SendFrameThread(threading.Thread):
             # print("Frame sent. (size=" + str(len(frame)) + ")")
             time.sleep(0.01)
 
-        print('Connection terminated !')
         s.close()
+        print('Exiting video server.')
 
