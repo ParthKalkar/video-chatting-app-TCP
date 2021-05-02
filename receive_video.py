@@ -4,23 +4,25 @@ import time
 import pickle
 from datetime import datetime
 
-
 video_buffer = b""
 video_buffer_lock = threading.Lock()
 frame_size = -1
-correspondent_ip = ""
+
+
+# correspondent_ip = ""
 
 class ReceiveFrameThread(threading.Thread):
-    def __init__(self, threadID, name, counter):
+    def __init__(self, threadID, name, counter, correspondent_ip):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.counter = counter
+        self.correspondent_ip = correspondent_ip
 
     def run(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
         port = 12345
-        IP = correspondent_ip
+        IP = self.correspondent_ip
         s.connect((IP, port))
 
         print('Connection established (video receiver).')
@@ -48,7 +50,7 @@ class ReceiveFrameThread(threading.Thread):
 
                 frame_count = 0
                 print("Current packet latency : " + str(latency))
-                print("Estimated video latency : " + str(latency*(frame_size/4096)))
+                print("Estimated video latency : " + str(latency * (frame_size / 4096)))
 
             video_buffer_lock.acquire()
             global video_buffer
@@ -77,7 +79,7 @@ class DisplayFrameThread(threading.Thread):
 
             # If there is more than 1 second of video in the buffer, skip it (assuming 25 fps)
             # todo see if this is actually useful, because the buffer itself is not the bottleneck
-            if len(video_buffer)>frame_size*25:
+            if len(video_buffer) > frame_size * 25:
                 video_buffer_lock.acquire()
                 video_buffer = b""
                 video_buffer_lock.release()

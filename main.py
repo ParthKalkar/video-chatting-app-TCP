@@ -89,14 +89,14 @@ class InitiateCallThread(threading.Thread):
 
         msg = s.recv(1024)
         print('Your correspondent gave back their IP : ' + msg.decode('utf-8'))
-        global correspondent_ip
+        #global correspondent_ip
         correspondent_ip = msg.decode('utf-8')
 
         s.sendall(b"OK")
 
-        t1 = ReceiveFrameThread(1, "Receive frame", 1)
+        t1 = ReceiveFrameThread(1, "Receive frame", 1, correspondent_ip)
         t2 = DisplayFrameThread(2, "Display frame", 2)
-        t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3)
+        t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3, correspondent_ip)
         t4 = PlayAudioThread(4, "Play Audio", 4)
 
         t1.start()
@@ -148,7 +148,7 @@ class CallListeningThread(threading.Thread):
 
         # receive ip
         ip = connection.recv(1024)
-        global correspondent_ip
+        # global correspondent_ip
         print(address)
         correspondent_ip = ip.decode('utf-8')
         print("Correspondent said their IP is " + correspondent_ip)
@@ -161,9 +161,9 @@ class CallListeningThread(threading.Thread):
         msg = connection.recv(1024)
         print(f"From {address} : {msg.decode('utf-8')}")
 
-        t1 = ReceiveFrameThread(1, "Receive frame", 1)
+        t1 = ReceiveFrameThread(1, "Receive frame", 1,correspondent_ip)
         t2 = DisplayFrameThread(2, "Display frame", 2)
-        t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3)
+        t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3,correspondent_ip)
         t4 = PlayAudioThread(4, "Play Audio", 4)
 
         t1.start()

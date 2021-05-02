@@ -1,5 +1,4 @@
 import threading
 import socket
 
-correspondent_ip = ""
-
+# correspondent_ip = ""

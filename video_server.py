@@ -4,6 +4,7 @@ import cv2
 import pickle
 from datetime import datetime
 
+
 class SendFrameThread(threading.Thread):
     def __init__(self, threadID, name, counter):
         threading.Thread.__init__(self)
@@ -14,7 +15,7 @@ class SendFrameThread(threading.Thread):
     def run(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
         port = 12345
-        IP = ''  # socket.gethostbyname(socket.gethostname()) #'192.168.0.105'
+        IP = ''
         print("Server IP : " + IP)
         s.bind((IP, port))
         s.listen(10)
@@ -56,4 +57,3 @@ class SendFrameThread(threading.Thread):
 
         s.close()
         print('Exiting video server.')
-
