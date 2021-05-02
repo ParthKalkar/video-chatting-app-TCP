@@ -4,6 +4,15 @@ import cv2
 import pickle
 from datetime import datetime
 
+def resize_image(src):
+    width = int(src.shape[1] * 0.3)
+    height = int(src.shape[0] * 0.3)
+
+    new_size = (width, height)
+
+    # resize image
+    return cv2.resize(src, new_size)
+
 
 class SendFrameThread(threading.Thread):
     def __init__(self, threadID, name, counter):
@@ -32,6 +41,8 @@ class SendFrameThread(threading.Thread):
 
         ret, frame = cap.read()
 
+        frame = resize_image(frame)
+
         frame = pickle.dumps(frame)
 
         size = len(frame)
@@ -46,6 +57,7 @@ class SendFrameThread(threading.Thread):
                 frame_count = 0
                 continue
             ret, frame = cap.read()
+            frame = resize_image(frame)
             if not ret:
                 print("ERROR : couldn't read from webcam ! (Unknown reason)")
                 break
