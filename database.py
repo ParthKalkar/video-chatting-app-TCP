@@ -3,6 +3,7 @@ import pymongo
 client = pymongo.MongoClient('mongodb+srv://admin_rafik:KomZSX3zBmF13ZKa@main-cluster.atvy1.mongodb.net/test')
 db = client.video_chat_app
 users = db.users
+print("Successfully connected to the database ✓")
 
 
 # For now, this file is list of utility functions for the database
@@ -30,3 +31,10 @@ def get_online_users():
 
 def go_offline(name):
     users.update_one({'name': name}, {'$set': {'online': False}})
+    # For now, we will delete the user each time
+    # todo maybe we can use another method?
+    users.remove({'name': name})
+
+
+def get_user_ip(name):
+    return users.find_one({'name': name})['ip']
