@@ -4,9 +4,12 @@ import cv2
 import pickle
 from datetime import datetime
 
-def resize_image(src):
-    width = int(src.shape[1] * 0.1)
-    height = int(src.shape[0] * 0.1)
+MAX_LATENCY = 0.09  # The maximum allowed latency in seconds
+
+
+def resize_image(src, ratio):
+    width = int(src.shape[1] * ratio)
+    height = int(src.shape[0] * ratio)
 
     new_size = (width, height)
 
@@ -56,9 +59,10 @@ class SendFrameThread(threading.Thread):
                 connection.sendall(pickle.dumps(datetime.now()))
                 print("Size in bytes of datetime now : " + str(len(pickle.dumps(datetime.now()))))
                 frame_count = 0
-                ack = connection.recv(4096)
-                if ack.decode('utf-8') != "OK":
-                    print("Ack for latency is not OK, instead it is " + str(ack.decode('utf-8')))
+                packet_latency = connection.recv(4096)
+                packet_latency = pickle.loads(packet_latency)
+                new_frame_size = int(MAX_LATENCY*4096/packet_latency)
+                # todo use this to resize the frame, inform receiver, and deal with buffer problems
                 continue
             ret, frame = cap.read()
             frame = resize_image(frame)

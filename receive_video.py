@@ -44,12 +44,13 @@ class ReceiveFrameThread(threading.Thread):
                 packet = s.recv(53)  # The size of datetime object is 53 bytes
                 sending_time = pickle.loads(packet)
                 delta = datetime.now() - sending_time
-                latency = delta.total_seconds()
-
+                latency = abs(delta.total_seconds())  # todo check that the negative values are not actually a problem
+                frame_latency = latency * (frame_size / 4096)
                 frame_count = 0
                 print("Current packet latency : " + str(latency))
-                print("Estimated video latency : " + str(latency * (frame_size / 4096)))
-                s.sendall(b"OK")  # todo make sure this is the most efficient way to sync
+                print("Estimated video latency : " + str(frame_latency))
+
+                s.sendall(pickle.dumps(latency))  # todo make sure this is the most efficient way to sync
 
             packet = s.recv(4096)
             if not packet:
