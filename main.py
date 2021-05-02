@@ -30,9 +30,7 @@ class InitiateCallThread(threading.Thread):
         self.counter = counter
 
     def run(self) -> None:
-        print("You can either call someone or wait for someone to call you.")
         my_ip = get_my_private_ip()
-        print("In case you want someone to call you, give them your IP : " + my_ip)
         ip = input("If you wanna call someone, just enter their IP address : ")
 
         print("Initiating a call with " + ip)
@@ -42,7 +40,17 @@ class InitiateCallThread(threading.Thread):
         s.connect((ip, port))
 
         print('Connection established to make the call.')
-        s.sendall(b"Call")
+
+        choice = -1
+        while 1:
+            choice = input("Do you wanna use audio during the call? (y/n) : ")
+            if choice == 'y' or choice == 'n':
+                break
+            else:
+                print("Invalid input /!\\ Try again please.")
+
+        use_audio = (0, 1)[choice == 'y']
+        s.sendall((b"Call", b"Call NO AUDIO")[not use_audio])
 
         msg = s.recv(1024)
         print('Your correspondent said ' + msg.decode('utf-8'))
@@ -50,10 +58,12 @@ class InitiateCallThread(threading.Thread):
         s.sendall(bytes(my_ip, 'utf-8'))
 
         video_server = SendFrameThread(10, "Send Video", 10)
+        video_server.start()
+
         audio_server = SendAudioFrameThread(11, "Send Video", 11)
 
-        video_server.start()
-        audio_server.start()
+        if use_audio:
+            audio_server.start()
 
         msg = s.recv(1024)
         print('Your correspondent gave back their IP : ' + msg.decode('utf-8'))
@@ -69,15 +79,16 @@ class InitiateCallThread(threading.Thread):
 
         t1.start()
         t2.start()
-        t3.start()
-        t4.start()
-
         t1.join()
         t2.join()
-        t3.join()
-        t4.join()
         video_server.join()
-        audio_server.join()
+
+        if use_audio:
+            t3.start()
+            t4.start()
+            t3.join()
+            t4.join()
+            audio_server.join()
 
         print("Exiting the call making thread.")
 
@@ -98,8 +109,11 @@ class CallListeningThread(threading.Thread):
         print("Listening for incoming calls.")
         connection, address = s.accept()
 
-        msg = connection.recv(1024)
+        msg = connection.recv(1024).decode('utf-8')
         print(f"From {address} : {msg}")
+        use_audio = 1
+        if "NO AUDIO" in msg:
+            use_audio = 0
         connection.sendall(b"OK")
 
         # Start my own video and audio servers
@@ -107,7 +121,8 @@ class CallListeningThread(threading.Thread):
         audio_server = SendAudioFrameThread(11, "Send Video", 11)
 
         video_server.start()
-        # audio_server.start()
+        if use_audio:
+            audio_server.start()
 
         # receive ip
         ip = connection.recv(1024)
@@ -126,20 +141,20 @@ class CallListeningThread(threading.Thread):
 
         t1 = ReceiveFrameThread(1, "Receive frame", 1)
         t2 = DisplayFrameThread(2, "Display frame", 2)
-        # t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3)
-        # t4 = PlayAudioThread(4, "Play Audio", 4)
+        t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3)
+        t4 = PlayAudioThread(4, "Play Audio", 4)
 
         t1.start()
         t2.start()
-        # t3.start()
-        # t4.start()
-
         t1.join()
         t2.join()
-        # t3.join()
-        # t4.join()
         video_server.join()
-        # audio_server.join()
+        if use_audio:
+            t3.start()
+            t4.start()
+            t3.join()
+            t4.join()
+            audio_server.join()
         print("Exiting the call listening thread.")
 
 
@@ -179,12 +194,12 @@ while 1:
         print("Invalid input /!\\ please try again.")
 
 if choice == 'n':
-    t1 = CallListeningThread(30, "Listen for call", 30)
-    t1.start()
-    t1.join()
+    t_init = CallListeningThread(30, "Listen for call", 30)
+    t_init.start()
+    t_init.join()
 else:
-    t2 = InitiateCallThread(30, "Make a call", 30)
-    t2.start()
-    t2.join()
+    t_listen = InitiateCallThread(30, "Make a call", 30)
+    t_listen.start()
+    t_listen.join()
 
 print("Exiting main thread")
