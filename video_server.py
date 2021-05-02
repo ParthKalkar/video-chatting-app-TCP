@@ -53,7 +53,7 @@ class SendFrameThread(threading.Thread):
             frame_count += 1
             connection.sendall(frame)
             # print("Frame sent. (size=" + str(len(frame)) + ")")
-            time.sleep(0.01)
+            time.sleep(0.05)
 
         s.close()
         print('Exiting video server.')

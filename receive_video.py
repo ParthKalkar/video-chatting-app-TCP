@@ -74,7 +74,7 @@ class DisplayFrameThread(threading.Thread):
         while 1:
             global video_buffer
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
-                time.sleep(0.01)
+                time.sleep(0.05)
                 continue
 
             # If there is more than 1 second of video in the buffer, skip it (assuming 25 fps)
