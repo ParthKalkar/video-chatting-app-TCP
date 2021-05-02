@@ -55,6 +55,9 @@ class SendFrameThread(threading.Thread):
             if frame_count == 25:
                 connection.sendall(pickle.dumps(datetime.now()))
                 frame_count = 0
+                ack = connection.recv(4096)
+                if ack.decode('utf-8') != "OK":
+                    print("Ack for latency is not OK, instead it is " + str(ack.decode('utf-8')))
                 continue
             ret, frame = cap.read()
             frame = resize_image(frame)

@@ -51,6 +51,7 @@ class ReceiveFrameThread(threading.Thread):
                 frame_count = 0
                 print("Current packet latency : " + str(latency))
                 print("Estimated video latency : " + str(latency * (frame_size / 4096)))
+                s.sendall(b"OK")  # todo make sure this is the most efficient way to sync
 
             frame_count += 1
             video_buffer_lock.acquire()
