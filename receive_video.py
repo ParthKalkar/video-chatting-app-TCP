@@ -36,14 +36,12 @@ class ReceiveFrameThread(threading.Thread):
 
         frame_count = 0
         while True:
-            packet = s.recv(4096)
-            if not packet:
-                print("No packet received !!!! Exiting the video receiving thread.")
-                break
+
             # This part is synchronized with the video server (every 25 frames)
             # todo consider that the latency is actually way bigger for a frame because it has many packets
             # todo fix the problem when the hosts don't have the same timezone
             if frame_count == 25*(int(math.ceil(frame_size/4096))):
+                packet = s.recv(53)  # The size of datetime object is 53 bytes
                 sending_time = pickle.loads(packet)
                 delta = datetime.now() - sending_time
                 latency = delta.total_seconds()
@@ -53,6 +51,10 @@ class ReceiveFrameThread(threading.Thread):
                 print("Estimated video latency : " + str(latency * (frame_size / 4096)))
                 s.sendall(b"OK")  # todo make sure this is the most efficient way to sync
 
+            packet = s.recv(4096)
+            if not packet:
+                print("No packet received !!!! Exiting the video receiving thread.")
+                break
             frame_count += 1
             video_buffer_lock.acquire()
             global video_buffer
