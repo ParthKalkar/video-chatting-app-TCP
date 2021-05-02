@@ -43,15 +43,15 @@ class ReceiveFrameThread(threading.Thread):
             # This part is synchronized with the video server (every 25 frames)
             # todo consider that the latency is actually way bigger for a frame because it has many packets
             # todo fix the problem when the hosts don't have the same timezone
-            # if frame_count == 25:
-            #     sending_time = pickle.loads(packet)
-            #     delta = datetime.now() - sending_time
-            #     latency = delta.total_seconds()
-            #
-            #     frame_count = 0
-            #     print("Current packet latency : " + str(latency))
-            #     print("Estimated video latency : " + str(latency * (frame_size / 4096)))
-            #     s.sendall(b"OK")  # todo make sure this is the most efficient way to sync
+            if frame_count == 25*(int(math.ceil(frame_size/4096))):
+                sending_time = pickle.loads(packet)
+                delta = datetime.now() - sending_time
+                latency = delta.total_seconds()
+
+                frame_count = 0
+                print("Current packet latency : " + str(latency))
+                print("Estimated video latency : " + str(latency * (frame_size / 4096)))
+                s.sendall(b"OK")  # todo make sure this is the most efficient way to sync
 
             frame_count += 1
             video_buffer_lock.acquire()
