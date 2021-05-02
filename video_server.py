@@ -4,6 +4,19 @@ import cv2
 import pickle
 from datetime import datetime
 
+MAX_LATENCY = 0.09  # The maximum allowed latency in seconds
+
+
+def resize_image(src, ratio):
+    width = int(src.shape[1] * ratio)
+    height = int(src.shape[0] * ratio)
+
+    new_size = (width, height)
+
+    # resize image
+    return cv2.resize(src, new_size)
+
+
 class SendFrameThread(threading.Thread):
     def __init__(self, threadID, name, counter):
         threading.Thread.__init__(self)
@@ -14,7 +27,7 @@ class SendFrameThread(threading.Thread):
     def run(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
         port = 12345
-        IP = ''  # socket.gethostbyname(socket.gethostname()) #'192.168.0.105'
+        IP = ''
         print("Server IP : " + IP)
         s.bind((IP, port))
         s.listen(10)
@@ -31,6 +44,8 @@ class SendFrameThread(threading.Thread):
 
         ret, frame = cap.read()
 
+        frame = resize_image(frame)
+
         frame = pickle.dumps(frame)
 
         size = len(frame)
@@ -42,18 +57,27 @@ class SendFrameThread(threading.Thread):
         while True:
             if frame_count == 25:
                 connection.sendall(pickle.dumps(datetime.now()))
+                print("Size in bytes of datetime now : " + str(len(pickle.dumps(datetime.now()))))
                 frame_count = 0
+                packet_latency = connection.recv(4096)
+                packet_latency = pickle.loads(packet_latency)
+                new_frame_size = int(MAX_LATENCY*4096/packet_latency)
+                # todo use this to resize the frame, inform receiver, and deal with buffer problems
                 continue
             ret, frame = cap.read()
+            frame = resize_image(frame)
             if not ret:
                 print("ERROR : couldn't read from webcam ! (Unknown reason)")
                 break
             frame = pickle.dumps(frame)
             frame_count += 1
+            before_transmission = datetime.now()
             connection.sendall(frame)
-            # print("Frame sent. (size=" + str(len(frame)) + ")")
-            time.sleep(0.01)
+            transmission_delay = datetime.now() - before_transmission
+            transmission_delay = transmission_delay.total_seconds()
+            if frame_count == 24:
+                print("The transmission delay is : " + str(transmission_delay))
+            time.sleep(transmission_delay)  # todo not sure if this helps, or if the transmission delay is even relevant
 
-        print('Connection terminated !')
         s.close()
-
+        print('Exiting video server.')

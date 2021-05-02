@@ -1,6 +1,7 @@
 from root import *
 import pyaudio
 
+
 class SendAudioFrameThread(threading.Thread):
     def __init__(self, threadID, name, counter):
         threading.Thread.__init__(self)
@@ -16,7 +17,7 @@ class SendAudioFrameThread(threading.Thread):
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
         port = 12346
-        IP = ''  # socket.gethostbyname(socket.gethostname())  # '192.168.0.105'
+        IP = ''
         print("Server IP : " + IP)
         s.bind((IP, port))
         s.listen(10)
@@ -49,4 +50,4 @@ class SendAudioFrameThread(threading.Thread):
         stream.close()
         p.terminate()
         s.close()
-
+        print("Exiting audio server.")
