@@ -6,6 +6,15 @@ from audio_server import *
 from video_server import *
 from database import *
 
+# Logging
+# todo elaborate the logging and actually use it
+import logging
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+
+logger = logging.getLogger(__name__)
+
 # Call listening port is 12344
 # Video streaming port is 12345
 # Audio streaming port is 12346
