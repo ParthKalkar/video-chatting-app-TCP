@@ -1,3 +1,5 @@
+/* __________________ Common CSS_____________________ */
+
 * {
     margin: 0 px;
     padding: 0px;
@@ -6,39 +8,36 @@
 }  
 body {
     font-family: 'Poppins', sans-serif;
+    height: 641px;
 }
 
 button {
     font-family: 'Poppins', sans-serif;
 }
 
-/* __________________ Common CSS_____________________ */
-.title {
-    display: flex;
-    width: 40%;
-    height: 12vh;
-    margin: auto;
-    align-items: center;
-    color: #E5E5E5;
-}
-.footer {
+header {
     position: absolute;
+    left:31%;
+    right: 20%;
     color: #E5E5E5;
-    letter-spacing: 0.5px;
-    font-size: 14px;
-    bottom: 10px;
-    left: 60px;
+    z-index: 1000;
+}
 
+footer {
+    position: absolute;
+    bottom: 15px;
+    left: 30px;
+    color: #E5E5E5;
+    z-index: 1000;
 }
 
 .bkimage {
-    position: absolute;
-    top:0px;
-    right: 0px;
-    z-index: -1;
-    height: 100%;
+    position:absolute;
+    top: 0;
+    right: 0;
     width: 100%;
-    
+    height: 100%;
+    object-fit: cover;
 }
 /* __________________ Home page CSS_____________________ */
 
@@ -46,23 +45,69 @@ button {
 
 
 
-/* __________________ Ring page CSS_____________________ */
+/* __________________ Calling page CSS_____________________ */
 
-.person-icon {
-    display: flex;
-    width: 23%;
-    margin: auto;
-    align-items: center;
-}
-
-.calling-icons {
-    display: flex;
-    width: 23%;
-    margin: auto;
-    align-items: center; 
+.caller-name {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    top: 15%;
+    width: 35%;
+    color: #E5E5E5;
+    z-index: 1000;
+    font-size: 20px;
     justify-content: space-around;
 }
 
+.person-icon {
+    position: absolute;
+    top: 29%;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    width: 270px;
+    height: 270px;
+    color: #E5E5E5;
+    z-index: 1000;
+}
 
+.calling-icons {
+    position: absolute;
+    bottom: 15%;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    width: 30%;
+    text-align: center;
+    z-index: 1000;
+    
+}
 
-/* __________________ Call page CSS_____________________ */
+.vid-on{
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+.end-call{
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+.mic-on{
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+/* __________________ Receiving-call page CSS_____________________ */
+.accept-call{
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+/* __________________ on-Call page CSS_____________________ */
