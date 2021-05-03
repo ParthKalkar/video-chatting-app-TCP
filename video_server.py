@@ -42,6 +42,8 @@ class SendFrameThread(threading.Thread):
 
         print('Established webcam stream.')
 
+        scaling_ratio = 0.3
+
         ret, frame = cap.read()
 
         frame = resize_image(frame)
@@ -63,9 +65,27 @@ class SendFrameThread(threading.Thread):
                 packet_latency = pickle.loads(packet_latency)
                 new_frame_size = int(MAX_LATENCY*4096/packet_latency)
                 # todo use this to resize the frame, inform receiver, and deal with buffer problems
+                # todo to resize the frame, we can have preset ratios and choose the closest one
+
+                # For now we will find the new ratio
+                # find the relative ratio compared to the current frame size
+                relative_ratio = math.sqrt(new_frame_size/size)
+                ret, frame = cap.read()
+                if not ret:
+                    print("ERROR : couldn't read from webcam while resizing frame! (Unknown reason)")
+                    break
+                frame = resize_image(frame, scaling_ratio*relative_ratio)
+                new_size = len(pickle.dumps(frame))
+                connection.sendall(bytes(str(new_size), 'utf-8'))
+                ack = connection.recv(4096).decode('utf-8')
+                if ack != "OK":
+                    print("Wrong final ack when resizing frame. (" + ack + ")")
+                # Update things locally : Frame size and the scaling ratio
+                size = new_size
+                scaling_ratio *= relative_ratio
                 continue
             ret, frame = cap.read()
-            frame = resize_image(frame)
+            frame = resize_image(frame, scaling_ratio)
             if not ret:
                 print("ERROR : couldn't read from webcam ! (Unknown reason)")
                 break
