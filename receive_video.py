@@ -7,9 +7,8 @@ from datetime import datetime
 video_buffer = b""
 video_buffer_lock = threading.Lock()
 frame_size = -1
+tmp_frame_size = -1  # to be used when the frame size is changed in the receiver thread but not in the display thread
 
-
-# correspondent_ip = ""
 
 class ReceiveFrameThread(threading.Thread):
     def __init__(self, threadID, name, counter, correspondent_ip):
@@ -26,6 +25,8 @@ class ReceiveFrameThread(threading.Thread):
         s.connect((IP, port))
 
         print('Connection established (video receiver).')
+
+        # todo add a latency check here
 
         size = s.recv(1024)
 
@@ -52,6 +53,19 @@ class ReceiveFrameThread(threading.Thread):
 
                 s.sendall(pickle.dumps(latency))  # todo make sure this is the most efficient way to sync
 
+                new_frame_size = s.recv(4096) # todo make sure it will only receive the new frame size
+                new_frame_size = int(new_frame_size.decode('utf-8'))
+                print("Frame size changed by server to " + str(new_frame_size))
+                global tmp_frame_size
+                tmp_frame_size = new_frame_size
+                buffer_string = "NEW_FRAME_SIZE"
+                video_buffer_lock.acquire()
+                global video_buffer
+                video_buffer += pickle.dumps(buffer_string)
+                video_buffer_lock.release()
+
+                s.sendall(b"OK")  # Send ACK
+
             packet = s.recv(4096)
             if not packet:
                 print("No packet received !!!! Exiting the video receiving thread.")
@@ -60,7 +74,6 @@ class ReceiveFrameThread(threading.Thread):
             video_buffer_lock.acquire()
             global video_buffer
             video_buffer += packet
-            # print('Size of video_buffer received  : ' + str(len(video_buffer)))
             video_buffer_lock.release()
             time.sleep(0.01)
         print('Exiting video receiving thread.')
@@ -78,6 +91,12 @@ class DisplayFrameThread(threading.Thread):
         print("Displaying frame thread started")
         while 1:
             global video_buffer
+            start = video_buffer[:len("NEW_FRAME_SIZE")]  # todo check that I don't need a lock here
+            if start == "NEW_FRAME_SIZE":
+                print("Changing frame size.")
+                global frame_size  # todo check if I need a lock here
+                frame_size = tmp_frame_size
+
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
                 time.sleep(0.05)
                 continue
@@ -94,10 +113,7 @@ class DisplayFrameThread(threading.Thread):
             nextframe = video_buffer[:frame_size]
             video_buffer = video_buffer[frame_size:]
             video_buffer_lock.release()
-            # print(type(nextframe))
-            # print(video_buffer)
             frame = pickle.loads(nextframe)
-            # print(type(frame))
             cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
             cv2.imshow('frame', frame)
             cv2.waitKey(1)
