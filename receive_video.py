@@ -94,22 +94,22 @@ class DisplayFrameThread(threading.Thread):
         while 1:
             global video_buffer
             global frame_size
-            if len(video_buffer) < len(pickle.dumps("NEW_FRAME_SIZE")):
-                continue
-            video_buffer_lock.acquire()
-            start = pickle.loads(video_buffer[:len(pickle.dumps("NEW_FRAME_SIZE"))])
-            video_buffer_lock.release()   # todo check that I don't need a lock here
-            if start == "NEW_FRAME_SIZE":
-                print("Changing frame size.")
-                video_buffer_lock.acquire()
-                video_buffer = video_buffer[len(pickle.dumps("NEW_FRAME_SIZE")):]
-                video_buffer_lock.release()
-                global frame_size
-                global tmp_frame_size  # todo check if I need a lock here
-                tmp_frame_size_lock.acquire()
-                frame_size = tmp_frame_size[0]
-                tmp_frame_size = tmp_frame_size[1:]
-                tmp_frame_size_lock.release()
+            # if len(video_buffer) < len(pickle.dumps("NEW_FRAME_SIZE")):
+            #     continue
+            # video_buffer_lock.acquire()
+            # start = pickle.loads(video_buffer[:len(pickle.dumps("NEW_FRAME_SIZE"))])
+            # video_buffer_lock.release()   # todo check that I don't need a lock here
+            # if start == "NEW_FRAME_SIZE":
+            #     print("Changing frame size.")
+            #     video_buffer_lock.acquire()
+            #     video_buffer = video_buffer[len(pickle.dumps("NEW_FRAME_SIZE")):]
+            #     video_buffer_lock.release()
+            #     global frame_size
+            #     global tmp_frame_size  # todo check if I need a lock here
+            #     tmp_frame_size_lock.acquire()
+            #     frame_size = tmp_frame_size[0]
+            #     tmp_frame_size = tmp_frame_size[1:]
+            #     tmp_frame_size_lock.release()
 
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
                 time.sleep(0.05)
