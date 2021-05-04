@@ -57,15 +57,15 @@ class ReceiveFrameThread(threading.Thread):
                 new_frame_size = s.recv(4096) # todo make sure it will only receive the new frame size
                 new_frame_size = int(new_frame_size.decode('utf-8'))
                 print("Frame size changed by server to " + str(new_frame_size))
-                global tmp_frame_size
-                tmp_frame_size_lock.acquire()
-                tmp_frame_size.append(new_frame_size)  # tmp_frame_size now has the changes of frame size in order.
-                tmp_frame_size_lock.release()
-                buffer_string = "NEW_FRAME_SIZE"
-                # global video_buffer
-                video_buffer_lock.acquire()
-                video_buffer += pickle.dumps(buffer_string)
-                video_buffer_lock.release()
+                # global tmp_frame_size
+                # tmp_frame_size_lock.acquire()
+                # tmp_frame_size.append(new_frame_size)  # tmp_frame_size now has the changes of frame size in order.
+                # tmp_frame_size_lock.release()
+                # buffer_string = "NEW_FRAME_SIZE"
+                # # global video_buffer
+                # video_buffer_lock.acquire()
+                # video_buffer += pickle.dumps(buffer_string)
+                # video_buffer_lock.release()
 
                 s.sendall(b"OK")  # Send ACK
 

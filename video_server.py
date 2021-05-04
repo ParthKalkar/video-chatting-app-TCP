@@ -42,7 +42,7 @@ class SendFrameThread(threading.Thread):
 
         print('Established webcam stream.')
 
-        scaling_ratio = 0.3
+        scaling_ratio = 0.1
 
         ret, frame = cap.read()
 
