@@ -28,25 +28,25 @@ class SendFrameThread(threading.Thread):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
         port = 12345
         IP = ''
-        print("Server IP : " + IP)
+        print("Video server : Server IP : " + IP)
         s.bind((IP, port))
         s.listen(10)
 
-        print('Socket created and listening.')
+        print('Video server : Socket created and listening.')
 
         connection, address = s.accept()
 
-        print('Connection from ' + str(address))
+        print('Video server : Connection from ' + str(address))
 
         cap = cv2.VideoCapture(0)
 
-        print('Established webcam stream.')
+        print('Video server : Established webcam stream.')
 
-        scaling_ratio = 0.3
+        scaling_ratio = 0.1
 
         ret, frame = cap.read()
 
-        frame = resize_image(frame)
+        frame = resize_image(frame, scaling_ratio)
 
         frame = pickle.dumps(frame)
 
@@ -57,11 +57,13 @@ class SendFrameThread(threading.Thread):
         frame_count = 0
 
         while True:
+            print("Video server : Frame count " +  str(25*(int(math.ceil(size/4096)))))
             if frame_count == 25:
                 connection.sendall(pickle.dumps(datetime.now()))
-                print("Size in bytes of datetime now : " + str(len(pickle.dumps(datetime.now()))))
+                print("Video server : Size in bytes of datetime now : " + str(len(pickle.dumps(datetime.now()))))
                 frame_count = 0
                 packet_latency = connection.recv(4096)
+                print("Video server : Received back the packet latency.")
                 packet_latency = pickle.loads(packet_latency)
                 new_frame_size = int(MAX_LATENCY*4096/packet_latency)
                 # todo use this to resize the frame, inform receiver, and deal with buffer problems
@@ -76,18 +78,22 @@ class SendFrameThread(threading.Thread):
                     break
                 frame = resize_image(frame, scaling_ratio*relative_ratio)
                 new_size = len(pickle.dumps(frame))
-                connection.sendall(bytes(str(new_size), 'utf-8'))
-                ack = connection.recv(4096).decode('utf-8')
-                if ack != "OK":
-                    print("Wrong final ack when resizing frame. (" + ack + ")")
-                # Update things locally : Frame size and the scaling ratio
-                size = new_size
-                scaling_ratio *= relative_ratio
-                continue
+                print("Video server : The new frame size is " + str(new_size))
+            #
+            #     connection.sendall(bytes(str(new_size), 'utf-8'))
+            #
+            #     ack = connection.recv(4096).decode('utf-8')
+            #
+            #     if ack != "OK":
+            #         print("Wrong final ack when resizing frame. (" + ack + ")")
+            #     # Update things locally : Frame size and the scaling ratio
+            #     size = new_size
+            #     scaling_ratio *= relative_ratio
+            #     continue
             ret, frame = cap.read()
             frame = resize_image(frame, scaling_ratio)
             if not ret:
-                print("ERROR : couldn't read from webcam ! (Unknown reason)")
+                print("Video server : ERROR : couldn't read from webcam ! (Unknown reason)")
                 break
             frame = pickle.dumps(frame)
             frame_count += 1
@@ -96,8 +102,8 @@ class SendFrameThread(threading.Thread):
             transmission_delay = datetime.now() - before_transmission
             transmission_delay = transmission_delay.total_seconds()
             if frame_count == 24:
-                print("The transmission delay is : " + str(transmission_delay))
-            time.sleep(transmission_delay)  # todo not sure if this helps, or if the transmission delay is even relevant
+                print("Video server : The transmission delay is : " + str(transmission_delay))
+            time.sleep(0.02)  # todo not sure if this helps, or if the transmission delay is even relevant
 
         s.close()
         print('Exiting video server.')
