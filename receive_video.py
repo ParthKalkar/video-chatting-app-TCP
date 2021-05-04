@@ -42,6 +42,7 @@ class ReceiveFrameThread(threading.Thread):
             # This part is synchronized with the video server (every 25 frames)
             # todo consider that the latency is actually way bigger for a frame because it has many packets
             # todo fix the problem when the hosts don't have the same timezone
+            print("Video receiver : Frame count " + str(frame_count))
             if frame_count == 25*(int(math.ceil(frame_size/4096))):
                 packet = s.recv(53)  # The size of datetime object is 53 bytes
                 sending_time = pickle.loads(packet)

@@ -57,6 +57,7 @@ class SendFrameThread(threading.Thread):
         frame_count = 0
 
         while True:
+            print("Video server : Frame count " +  str(25*(int(math.ceil(size/4096)))))
             if frame_count == 25:
                 connection.sendall(pickle.dumps(datetime.now()))
                 print("Video server : Size in bytes of datetime now : " + str(len(pickle.dumps(datetime.now()))))
@@ -77,6 +78,7 @@ class SendFrameThread(threading.Thread):
                     break
                 frame = resize_image(frame, scaling_ratio*relative_ratio)
                 new_size = len(pickle.dumps(frame))
+                print("Video server : The new frame size is " + str(new_size))
             #
             #     connection.sendall(bytes(str(new_size), 'utf-8'))
             #
