@@ -97,7 +97,7 @@ class SendFrameThread(threading.Thread):
             transmission_delay = transmission_delay.total_seconds()
             if frame_count == 24:
                 print("The transmission delay is : " + str(transmission_delay))
-            time.sleep(transmission_delay)  # todo not sure if this helps, or if the transmission delay is even relevant
+            time.sleep(0.02)  # todo not sure if this helps, or if the transmission delay is even relevant
 
         s.close()
         print('Exiting video server.')
