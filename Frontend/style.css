@@ -37,10 +37,86 @@ footer {
     right: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    /* opacity: 0.5; */
 }
 /* __________________ Home page CSS_____________________ */
 
+.input-title{
+    position: absolute;
+    top: 16%;
+    left: 8%;
+    z-index: 1000;
+    color: #E5E5E5;
+    font-size: 18px;
+}
+label{
+    position: absolute;
+    top: 25%;
+    left: 8%;
+    z-index: 1000;
+}
+input{
+    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -ms-appearance:none;
+    appearance: none;
+    background: #E5E5E5;
+    padding: 12px;
+    border-radius: 3px;
+    width: 300px;
+}
+.button-save{
+    position: absolute;
+    top: 25%;
+    left: 430px;
+    z-index: 1000;
+    font-size: 15px;
+    padding:9px 40px;
+    background-color: rgb(29, 129, 223);
+    border-radius: 3px;
+    border: none;
+    color: #E5E5E5;
+    cursor: pointer;
+}
+
+.button-vid{
+    position: relative;
+    z-index: 1000;
+    cursor: pointer;
+    background-color: none;
+    border: none;
+    top: 35%;
+    color: #E5E5E5;
+}
+
+.button-mic{
+    position: relative;
+    left: 90px;
+    z-index: 1000;
+    cursor: pointer;
+    background-color: none;
+    border: none;
+    top: 35%;
+    color: #E5E5E5;
+}
+
+.callernames-wrapper{
+    position:relative;
+    top: 7%;
+    left:700px;
+    z-index: 1000;
+    width: 400px;
+    height: 450px;
+    background: #E5E5E5;
+    border-radius: 10px;
+    overflow: hidden;
+    overflow-y: scroll;
+    padding: 25px;
+}
+.callernames{
+    background: none;
+}
 
 
 
@@ -121,11 +197,36 @@ footer {
     text-align: center;
     height: 450px; /*(16:9 multiplied by 50)*/
     width: 800px;  /*(16:9 multiplied by 50)*/
-    background-color: brown;
+    background-color: rgb(245, 245, 245);
     z-index: 1000;
+    border: solid #c00040;
 }
 
 .image1{
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top:0px;
+    bottom: 0px;
+    height:100%;
+    width: 100%;
+}
+
+.imagewrapper2{
+    position: absolute;
+    bottom: 17%;
+    margin-left: auto;
+    margin-right: auto;
+    left: 540px;
+    right: 0;
+    text-align: center;
+    height: 135px; /*(16:9 multiplied by 15)*/
+    width: 240px;  /*(16:9 multiplied by 15)*/
+    background-color: rgb(27, 113, 163);
+    z-index: 1000;
+    border: solid #00c03a;
+}
+.image2{
     position: absolute;
     left: 0px;
     right: 0px;
