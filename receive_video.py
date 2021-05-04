@@ -8,6 +8,7 @@ video_buffer = b""
 video_buffer_lock = threading.Lock()
 frame_size = -1
 tmp_frame_size = -1  # to be used when the frame size is changed in the receiver thread but not in the display thread
+tmp_frame_size_lock = threading.Lock()
 
 
 class ReceiveFrameThread(threading.Thread):
@@ -91,11 +92,23 @@ class DisplayFrameThread(threading.Thread):
         print("Displaying frame thread started")
         while 1:
             global video_buffer
-            start = video_buffer[:len("NEW_FRAME_SIZE")]  # todo check that I don't need a lock here
+            global frame_size
+            if len(video_buffer) < len(pickle.dumps("NEW_FRAME_SIZE")):
+                continue
+            video_buffer_lock.acquire()
+            start = pickle.loads(video_buffer[:len(pickle.dumps("NEW_FRAME_SIZE"))])
+            video_buffer_lock.release()   # todo check that I don't need a lock here
             if start == "NEW_FRAME_SIZE":
                 print("Changing frame size.")
-                global frame_size  # todo check if I need a lock here
+                video_buffer_lock.acquire()
+                video_buffer = video_buffer[len(pickle.dumps("NEW_FRAME_SIZE")):]
+                video_buffer_lock.release()
+                global frame_size
+                global tmp_frame_size  # todo check if I need a lock here
+                tmp_frame_size_lock.acquire()
                 frame_size = tmp_frame_size
+                tmp_frame_size = -1
+                tmp_frame_size_lock.release()
 
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
                 time.sleep(0.05)
@@ -110,10 +123,10 @@ class DisplayFrameThread(threading.Thread):
                 continue
 
             video_buffer_lock.acquire()
-            nextframe = video_buffer[:frame_size]
+            next_frame = video_buffer[:frame_size]
             video_buffer = video_buffer[frame_size:]
             video_buffer_lock.release()
-            frame = pickle.loads(nextframe)
+            frame = pickle.loads(next_frame)
             cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
             cv2.imshow('frame', frame)
             cv2.waitKey(1)
