@@ -42,32 +42,34 @@ class ReceiveFrameThread(threading.Thread):
             # This part is synchronized with the video server (every 25 frames)
             # todo consider that the latency is actually way bigger for a frame because it has many packets
             # todo fix the problem when the hosts don't have the same timezone
-            if frame_count == 25*(int(math.ceil(frame_size/4096))):
-                packet = s.recv(53)  # The size of datetime object is 53 bytes
-                sending_time = pickle.loads(packet)
-                delta = datetime.now() - sending_time
-                latency = abs(delta.total_seconds())  # todo check that the negative values are not actually a problem
-                frame_latency = latency * (frame_size / 4096)
-                frame_count = 0
-                print("Current packet latency : " + str(latency))
-                print("Estimated video latency : " + str(frame_latency))
-
-                s.sendall(pickle.dumps(latency))  # todo make sure this is the most efficient way to sync
-
-                new_frame_size = s.recv(4096)  # todo make sure it will only receive the new frame size
-                new_frame_size = int(new_frame_size.decode('utf-8'))
-                print("Frame size changed by server to " + str(new_frame_size))
-                # global tmp_frame_size
-                # tmp_frame_size_lock.acquire()
-                # tmp_frame_size.append(new_frame_size)  # tmp_frame_size now has the changes of frame size in order.
-                # tmp_frame_size_lock.release()
-                # buffer_string = "NEW_FRAME_SIZE"
-                # # global video_buffer
-                # video_buffer_lock.acquire()
-                # video_buffer += pickle.dumps(buffer_string)
-                # video_buffer_lock.release()
-
-                s.sendall(b"OK")  # Send ACK
+            # if frame_count == 25*(int(math.ceil(frame_size/4096))):
+            #     packet = s.recv(53)  # The size of datetime object is 53 bytes
+            #     sending_time = pickle.loads(packet)
+            #     print("Received server time. (video receiver)")
+            #     delta = datetime.now() - sending_time
+            #     latency = abs(delta.total_seconds())  # todo check that the negative values are not actually a problem
+            #     frame_latency = latency * (frame_size / 4096)
+            #     frame_count = 0
+            #     print("Current packet latency : " + str(latency))
+            #     print("Estimated video latency : " + str(frame_latency))
+            #
+            #     s.sendall(pickle.dumps(latency))  # todo make sure this is the most efficient way to sync
+            #
+            #     new_frame_size = s.recv(30)  # todo make sure it will only receive the new frame size
+            #     new_frame_size = int(new_frame_size.decode('utf-8'))
+            #     print("Frame size changed by server to " + str(new_frame_size))
+            #     # global tmp_frame_size
+            #     # tmp_frame_size_lock.acquire()
+            #     # tmp_frame_size.append(new_frame_size)  # tmp_frame_size now has the changes of frame size in order.
+            #     # tmp_frame_size_lock.release()
+            #     # buffer_string = "NEW_FRAME_SIZE"
+            #     # # global video_buffer
+            #     # video_buffer_lock.acquire()
+            #     # video_buffer += pickle.dumps(buffer_string)
+            #     # video_buffer_lock.release()
+            #
+            #     s.sendall(b"OK")  # Send ACK
+            #     continue
 
             packet = s.recv(4096)
             if not packet:
