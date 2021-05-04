@@ -62,6 +62,7 @@ class SendFrameThread(threading.Thread):
                 print("Size in bytes of datetime now : " + str(len(pickle.dumps(datetime.now()))))
                 frame_count = 0
                 packet_latency = connection.recv(4096)
+                print("Received back the packet latency.")
                 packet_latency = pickle.loads(packet_latency)
                 new_frame_size = int(MAX_LATENCY*4096/packet_latency)
                 # todo use this to resize the frame, inform receiver, and deal with buffer problems
@@ -76,8 +77,11 @@ class SendFrameThread(threading.Thread):
                     break
                 frame = resize_image(frame, scaling_ratio*relative_ratio)
                 new_size = len(pickle.dumps(frame))
+
                 connection.sendall(bytes(str(new_size), 'utf-8'))
+
                 ack = connection.recv(4096).decode('utf-8')
+
                 if ack != "OK":
                     print("Wrong final ack when resizing frame. (" + ack + ")")
                 # Update things locally : Frame size and the scaling ratio

@@ -54,7 +54,7 @@ class ReceiveFrameThread(threading.Thread):
 
                 s.sendall(pickle.dumps(latency))  # todo make sure this is the most efficient way to sync
 
-                new_frame_size = s.recv(4096) # todo make sure it will only receive the new frame size
+                new_frame_size = s.recv(4096)  # todo make sure it will only receive the new frame size
                 new_frame_size = int(new_frame_size.decode('utf-8'))
                 print("Frame size changed by server to " + str(new_frame_size))
                 # global tmp_frame_size
