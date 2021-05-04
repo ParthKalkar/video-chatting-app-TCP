@@ -34,7 +34,7 @@ class ReceiveFrameThread(threading.Thread):
         global frame_size
         frame_size = int(size.decode('utf-8'))
 
-        print('Frame size in bytes : ' + str(size))
+        print('Video receiver : Frame size in bytes : ' + str(size))
 
         frame_count = 0
         while True:
@@ -45,13 +45,13 @@ class ReceiveFrameThread(threading.Thread):
             if frame_count == 25*(int(math.ceil(frame_size/4096))):
                 packet = s.recv(53)  # The size of datetime object is 53 bytes
                 sending_time = pickle.loads(packet)
-                print("Received server time. (video receiver)")
+                print("Video receiver : Received server time. (video receiver)")
                 delta = datetime.now() - sending_time
                 latency = abs(delta.total_seconds())  # todo check that the negative values are not actually a problem
                 frame_latency = latency * (frame_size / 4096)
                 frame_count = 0
-                print("Current packet latency : " + str(latency))
-                print("Estimated video latency : " + str(frame_latency))
+                print("Video receiver : Current packet latency : " + str(latency))
+                print("Video receiver : Estimated video latency : " + str(frame_latency))
 
                 s.sendall(pickle.dumps(latency))  # todo make sure this is the most efficient way to sync
             #
@@ -73,14 +73,14 @@ class ReceiveFrameThread(threading.Thread):
 
             packet = s.recv(4096)
             if not packet:
-                print("No packet received !!!! Exiting the video receiving thread.")
+                print("Video receiver : No packet received !!!! Exiting the video receiving thread.")
                 break
             frame_count += 1
             video_buffer_lock.acquire()
             video_buffer += packet
             video_buffer_lock.release()
             time.sleep(0.01)
-        print('Exiting video receiving thread.')
+        print('Video receiver : Exiting video receiving thread.')
         s.close()
 
 
