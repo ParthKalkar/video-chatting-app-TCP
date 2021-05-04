@@ -38,7 +38,7 @@ class ReceiveFrameThread(threading.Thread):
 
         frame_count = 0
         while True:
-
+            global video_buffer
             # This part is synchronized with the video server (every 25 frames)
             # todo consider that the latency is actually way bigger for a frame because it has many packets
             # todo fix the problem when the hosts don't have the same timezone
@@ -62,7 +62,7 @@ class ReceiveFrameThread(threading.Thread):
                 tmp_frame_size.append(new_frame_size)  # tmp_frame_size now has the changes of frame size in order.
                 tmp_frame_size_lock.release()
                 buffer_string = "NEW_FRAME_SIZE"
-                global video_buffer
+                # global video_buffer
                 video_buffer_lock.acquire()
                 video_buffer += pickle.dumps(buffer_string)
                 video_buffer_lock.release()
@@ -75,7 +75,6 @@ class ReceiveFrameThread(threading.Thread):
                 break
             frame_count += 1
             video_buffer_lock.acquire()
-            global video_buffer
             video_buffer += packet
             video_buffer_lock.release()
             time.sleep(0.01)
