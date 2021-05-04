@@ -46,7 +46,7 @@ class SendFrameThread(threading.Thread):
 
         ret, frame = cap.read()
 
-        frame = resize_image(frame)
+        frame = resize_image(frame, scaling_ratio)
 
         frame = pickle.dumps(frame)
 
