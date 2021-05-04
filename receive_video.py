@@ -7,7 +7,7 @@ from datetime import datetime
 video_buffer = b""
 video_buffer_lock = threading.Lock()
 frame_size = -1
-tmp_frame_size = -1  # to be used when the frame size is changed in the receiver thread but not in the display thread
+tmp_frame_size = []  # to be used when the frame size is changed in the receiver thread but not in the display thread
 tmp_frame_size_lock = threading.Lock()
 
 
@@ -58,10 +58,12 @@ class ReceiveFrameThread(threading.Thread):
                 new_frame_size = int(new_frame_size.decode('utf-8'))
                 print("Frame size changed by server to " + str(new_frame_size))
                 global tmp_frame_size
-                tmp_frame_size = new_frame_size
+                tmp_frame_size_lock.acquire()
+                tmp_frame_size.append(new_frame_size)  # tmp_frame_size now has the changes of frame size in order.
+                tmp_frame_size_lock.release()
                 buffer_string = "NEW_FRAME_SIZE"
-                video_buffer_lock.acquire()
                 global video_buffer
+                video_buffer_lock.acquire()
                 video_buffer += pickle.dumps(buffer_string)
                 video_buffer_lock.release()
 
@@ -106,8 +108,8 @@ class DisplayFrameThread(threading.Thread):
                 global frame_size
                 global tmp_frame_size  # todo check if I need a lock here
                 tmp_frame_size_lock.acquire()
-                frame_size = tmp_frame_size
-                tmp_frame_size = -1
+                frame_size = tmp_frame_size[0]
+                tmp_frame_size = tmp_frame_size[1:]
                 tmp_frame_size_lock.release()
 
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
