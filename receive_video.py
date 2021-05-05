@@ -112,9 +112,16 @@ class DisplayFrameThread(threading.Thread):
             if len(video_buffer) < len(pickle.dumps("NEW_FRAME_SIZE")):
                 continue
             video_buffer_lock.acquire()
-            start = video_buffer[:len(bytes("NEW_FRAME_SIZE", 'utf-8'))].decode('utf-8')
-            video_buffer_lock.release()   # todo check that I don't need a lock here
-            if start == "NEW_FRAME_SIZE":
+            start = video_buffer[:len(bytes("NEW_FRAME_SIZE", 'utf-8'))]
+            video_buffer_lock.release()  # todo check that I don't need a lock here
+
+            valid_string = True
+            try:
+                start = start.decode('utf-8')
+            except UnicodeDecodeError as e:
+                valid_string = False
+
+            if valid_string and start == "NEW_FRAME_SIZE":
                 print("Video player : Changing frame size.")
                 video_buffer_lock.acquire()
                 video_buffer = video_buffer[len(bytes("NEW_FRAME_SIZE", 'utf-8')):]
