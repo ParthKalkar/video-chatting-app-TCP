@@ -45,7 +45,7 @@ class ReceiveFrameThread(threading.Thread):
                 print("Video receiver : No packet received !!!! Exiting the video receiving thread.")
                 break
 
-            print("Video receiver : Packet size " + str(len(packet)))
+            # print("Video receiver : Packet size " + str(len(packet)))
 
             total_received_bytes += len(packet)
             # This part is synchronized with the video server (every 25 frames)
@@ -55,9 +55,12 @@ class ReceiveFrameThread(threading.Thread):
             # The size of datetime object is 53 bytes (we are assuming that the packet will be exactly that)
             # if len(packet_end) == 53 and type(pickle.loads(packet)) == datetime:  # todo check this condition
             print(total_received_bytes)
+
+            # todo what if this is exactly the size of 25 frames?
             if total_received_bytes > 25*frame_size:
-                packet_end = packet[:-53]
+                packet_end = packet[len(packet)-53:]
                 print("Video receiver : Received packet seems to be the server time.")
+                print("Video receiver : Datetime packet length : " + str(len(packet_end)))
                 sending_time = pickle.loads(packet_end)
                 print("Video receiver : Received server time.")
                 delta = datetime.now() - sending_time
@@ -84,7 +87,7 @@ class ReceiveFrameThread(threading.Thread):
                 s.sendall(b"OK")  # Send ACK
                 total_received_bytes = 0
                 # continue
-                packet = packet[-53:]
+                packet = packet[:len(packet)-53]
 
             video_buffer_lock.acquire()
             video_buffer += packet
