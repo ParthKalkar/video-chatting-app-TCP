@@ -54,7 +54,7 @@ class ReceiveFrameThread(threading.Thread):
 
             # The size of datetime object is 53 bytes (we are assuming that the packet will be exactly that)
             # if len(packet_end) == 53 and type(pickle.loads(packet)) == datetime:  # todo check this condition
-            print(total_received_bytes)
+            # print(total_received_bytes)
 
             # todo what if this is exactly the size of 25 frames?
             if total_received_bytes > 25*frame_size:
@@ -74,15 +74,15 @@ class ReceiveFrameThread(threading.Thread):
                 new_frame_size = s.recv(4096)  # todo make sure it will only receive the new frame size
                 new_frame_size = int(new_frame_size.decode('utf-8'))
                 print("Video receiver : Frame size changed by server to " + str(new_frame_size))
-                # global tmp_frame_size
-                # tmp_frame_size_lock.acquire()
-                # tmp_frame_size.append(new_frame_size)  # tmp_frame_size now has the changes of frame size in order.
-                # tmp_frame_size_lock.release()
-                # buffer_string = "NEW_FRAME_SIZE"
-                # # global video_buffer
-                # video_buffer_lock.acquire()
-                # video_buffer += pickle.dumps(buffer_string)
-                # video_buffer_lock.release()
+                global tmp_frame_size
+                tmp_frame_size_lock.acquire()
+                tmp_frame_size.append(new_frame_size)  # tmp_frame_size now has the changes of frame size in order.
+                tmp_frame_size_lock.release()
+                buffer_string = "NEW_FRAME_SIZE"
+                # global video_buffer
+                video_buffer_lock.acquire()
+                video_buffer += pickle.dumps(buffer_string)
+                video_buffer_lock.release()
 
                 s.sendall(b"OK")  # Send ACK
                 total_received_bytes = 0
@@ -109,22 +109,22 @@ class DisplayFrameThread(threading.Thread):
         while 1:
             global video_buffer
             global frame_size
-            # if len(video_buffer) < len(pickle.dumps("NEW_FRAME_SIZE")):
-            #     continue
-            # video_buffer_lock.acquire()
-            # start = pickle.loads(video_buffer[:len(pickle.dumps("NEW_FRAME_SIZE"))])
-            # video_buffer_lock.release()   # todo check that I don't need a lock here
-            # if start == "NEW_FRAME_SIZE":
-            #     print("Changing frame size.")
-            #     video_buffer_lock.acquire()
-            #     video_buffer = video_buffer[len(pickle.dumps("NEW_FRAME_SIZE")):]
-            #     video_buffer_lock.release()
-            #     global frame_size
-            #     global tmp_frame_size  # todo check if I need a lock here
-            #     tmp_frame_size_lock.acquire()
-            #     frame_size = tmp_frame_size[0]
-            #     tmp_frame_size = tmp_frame_size[1:]
-            #     tmp_frame_size_lock.release()
+            if len(video_buffer) < len(pickle.dumps("NEW_FRAME_SIZE")):
+                continue
+            video_buffer_lock.acquire()
+            start = pickle.loads(video_buffer[:len(pickle.dumps("NEW_FRAME_SIZE"))])
+            video_buffer_lock.release()   # todo check that I don't need a lock here
+            if start == "NEW_FRAME_SIZE":
+                print("Video player : Changing frame size.")
+                video_buffer_lock.acquire()
+                video_buffer = video_buffer[len(pickle.dumps("NEW_FRAME_SIZE")):]
+                video_buffer_lock.release()
+                global frame_size
+                global tmp_frame_size  # todo check if I need a lock here
+                tmp_frame_size_lock.acquire()
+                frame_size = tmp_frame_size[0]
+                tmp_frame_size = tmp_frame_size[1:]
+                tmp_frame_size_lock.release()
 
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
                 time.sleep(0.05)
