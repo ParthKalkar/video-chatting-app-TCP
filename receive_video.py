@@ -91,6 +91,7 @@ class ReceiveFrameThread(threading.Thread):
                 total_received_bytes = 0
                 # continue
                 s.sendall(b"OK")  # Send ACK
+                time.sleep(0.03)
                 continue
 
             video_buffer_lock.acquire()
@@ -113,7 +114,7 @@ class DisplayFrameThread(threading.Thread):
         while 1:
             global video_buffer
             global frame_size
-            if len(video_buffer) < len(pickle.dumps("NEW_FRAME_SIZE")):
+            if len(video_buffer) < len(bytes("NEW_FRAME_SIZE", 'utf-8')):
                 continue
             video_buffer_lock.acquire()
             start = video_buffer[:len(bytes("NEW_FRAME_SIZE", 'utf-8'))]
@@ -136,6 +137,7 @@ class DisplayFrameThread(threading.Thread):
                 frame_size = tmp_frame_size[0]
                 tmp_frame_size = tmp_frame_size[1:]
                 tmp_frame_size_lock.release()
+                continue
 
             if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
                 time.sleep(0.05)
