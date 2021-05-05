@@ -48,6 +48,7 @@ class ReceiveFrameThread(threading.Thread):
 
             # The size of datetime object is 53 bytes (we are assuming that the packet will be exactly that)
             if len(packet) == 53 and type(pickle.loads(packet)) == datetime:  # todo check this condition
+                print("Video receiver : Received packet seems to be the server time.")
                 sending_time = pickle.loads(packet)
                 print("Video receiver : Received server time.")
                 delta = datetime.now() - sending_time
@@ -60,7 +61,7 @@ class ReceiveFrameThread(threading.Thread):
 
                 new_frame_size = s.recv(4096)  # todo make sure it will only receive the new frame size
                 new_frame_size = int(new_frame_size.decode('utf-8'))
-                print("Frame size changed by server to " + str(new_frame_size))
+                print("Video receiver : Frame size changed by server to " + str(new_frame_size))
                 # global tmp_frame_size
                 # tmp_frame_size_lock.acquire()
                 # tmp_frame_size.append(new_frame_size)  # tmp_frame_size now has the changes of frame size in order.
@@ -119,6 +120,7 @@ class DisplayFrameThread(threading.Thread):
             if len(video_buffer) > frame_size * 25:
                 video_buffer_lock.acquire()
                 video_buffer = b""
+                print("Video player : Too many frames in the buffer, clearing buffer.")
                 video_buffer_lock.release()
                 continue
 

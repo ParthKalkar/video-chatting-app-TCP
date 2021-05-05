@@ -48,7 +48,7 @@ class InitiateCallThread(threading.Thread):
         s.sendall((b"Call", b"Call NO AUDIO")[not use_audio])
 
         msg = s.recv(1024)
-        print('Your correspondent said ' + msg.decode('utf-8'))
+        print('Your correspondent said : ' + msg.decode('utf-8'))
 
         s.sendall(bytes(my_ip, 'utf-8'))
 
@@ -58,11 +58,11 @@ class InitiateCallThread(threading.Thread):
         audio_server = SendAudioFrameThread(11, "Send Video", 11)
 
         if use_audio:
+            print("Starting audio server.")
             audio_server.start()
 
         msg = s.recv(1024)
         print('Your correspondent gave back their IP : ' + msg.decode('utf-8'))
-        #global correspondent_ip
         correspondent_ip = msg.decode('utf-8')
 
         s.sendall(b"OK")
@@ -79,6 +79,7 @@ class InitiateCallThread(threading.Thread):
         video_server.join()
 
         if use_audio:
+            print("Starting other audio threads.")
             t3.start()
             t4.start()
             t3.join()

@@ -33,6 +33,7 @@ class CallListeningThread(threading.Thread):
 
         video_server.start()
         if use_audio:
+            print("Call listener : AUDIO ENABLED.")
             audio_server.start()
 
         # receive ip

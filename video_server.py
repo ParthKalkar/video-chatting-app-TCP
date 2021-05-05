@@ -53,6 +53,7 @@ class SendFrameThread(threading.Thread):
         size = len(frame)
 
         connection.sendall(bytes(str(size), 'utf-8'))
+        print("Video server : Sent initial frame size.")
 
         frame_count = 0
 
@@ -84,7 +85,7 @@ class SendFrameThread(threading.Thread):
                 ack = connection.recv(4096).decode('utf-8')
 
                 if ack != "OK":
-                    print("Wrong final ack when resizing frame. (" + ack + ")")
+                    print("Video server : Wrong final ack when resizing frame. (" + ack + ")")
                 # Update things locally : Frame size and the scaling ratio
             #     size = new_size
             #     scaling_ratio *= relative_ratio
