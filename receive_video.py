@@ -40,16 +40,25 @@ class ReceiveFrameThread(threading.Thread):
 
         while True:
             global video_buffer
+            packet = s.recv(4096)
+            if not packet:
+                print("Video receiver : No packet received !!!! Exiting the video receiving thread.")
+                break
+
+            print("Video receiver : Packet size " + str(len(packet)))
+
+            total_received_bytes += len(packet)
             # This part is synchronized with the video server (every 25 frames)
             # todo consider that the latency is actually way bigger for a frame because it has many packets
             # todo fix the problem when the hosts don't have the same timezone
 
             # The size of datetime object is 53 bytes (we are assuming that the packet will be exactly that)
             # if len(packet_end) == 53 and type(pickle.loads(packet)) == datetime:  # todo check this condition
-            if total_received_bytes == 25*frame_size:
-                packet = s.recv(53)
+            print(total_received_bytes)
+            if total_received_bytes > 25*frame_size:
+                packet_end = packet[:-53]
                 print("Video receiver : Received packet seems to be the server time.")
-                sending_time = pickle.loads(packet)
+                sending_time = pickle.loads(packet_end)
                 print("Video receiver : Received server time.")
                 delta = datetime.now() - sending_time
                 latency = abs(delta.total_seconds())  # todo check that the negative values are not actually a problem
@@ -74,17 +83,9 @@ class ReceiveFrameThread(threading.Thread):
 
                 s.sendall(b"OK")  # Send ACK
                 total_received_bytes = 0
-                continue
-                # packet = packet[-53:]
+                # continue
+                packet = packet[-53:]
 
-            packet = s.recv(4096)
-            if not packet:
-                print("Video receiver : No packet received !!!! Exiting the video receiving thread.")
-                break
-
-            print("Video receiver : Packet size " + str(len(packet)))
-            # packet_end = packet[:-53]
-            total_received_bytes += len(packet)
             video_buffer_lock.acquire()
             video_buffer += packet
             video_buffer_lock.release()
