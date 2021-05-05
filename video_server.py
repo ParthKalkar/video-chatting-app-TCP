@@ -87,9 +87,9 @@ class SendFrameThread(threading.Thread):
                 if ack != "OK":
                     print("Video server : Wrong final ack when resizing frame. (" + ack + ")")
                 # Update things locally : Frame size and the scaling ratio
-            #     size = new_size
-            #     scaling_ratio *= relative_ratio
-            #     continue
+                size = new_size
+                scaling_ratio *= relative_ratio
+                continue
             ret, frame = cap.read()
 
             # SHOW OWN WEBCAM

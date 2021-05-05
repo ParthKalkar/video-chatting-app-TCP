@@ -7,6 +7,7 @@ from datetime import datetime
 video_buffer = b""
 video_buffer_lock = threading.Lock()
 frame_size = -1
+frame_size_lock = threading.Lock()
 tmp_frame_size = []  # to be used when the frame size is changed in the receiver thread but not in the display thread
 tmp_frame_size_lock = threading.Lock()
 
@@ -34,7 +35,7 @@ class ReceiveFrameThread(threading.Thread):
         global frame_size
         frame_size = int(size.decode('utf-8'))
 
-        print('Video receiver : Frame size in bytes : ' + str(size))
+        print('Video receiver : Frame size in bytes : ' + str(frame_size))
 
         total_received_bytes = 0
 
@@ -131,7 +132,7 @@ class DisplayFrameThread(threading.Thread):
                 video_buffer_lock.acquire()
                 video_buffer = video_buffer[len(bytes("NEW_FRAME_SIZE", 'utf-8')):]
                 video_buffer_lock.release()
-                global frame_size
+                # global frame_size
                 global tmp_frame_size  # todo check if I need a lock here
                 tmp_frame_size_lock.acquire()
                 frame_size = tmp_frame_size[0]
@@ -153,6 +154,7 @@ class DisplayFrameThread(threading.Thread):
                 continue
 
             video_buffer_lock.acquire()
+            print("Video player : Current frame size : "+ str(frame_size))
             next_frame = video_buffer[:frame_size]
             video_buffer = video_buffer[frame_size:]
             video_buffer_lock.release()
