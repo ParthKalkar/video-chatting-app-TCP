@@ -76,7 +76,7 @@ class SendFrameThread(threading.Thread):
                 if not ret:
                     print("ERROR : couldn't read from webcam while resizing frame! (Unknown reason)")
                     break
-                frame = resize_image(frame, scaling_ratio*relative_ratio)
+                frame = resize_image(frame, max(0.1, scaling_ratio*relative_ratio))
                 new_size = len(pickle.dumps(frame))
                 print("Video server : The new frame size is " + str(new_size))
 
@@ -89,6 +89,7 @@ class SendFrameThread(threading.Thread):
                 # Update things locally : Frame size and the scaling ratio
                 size = new_size
                 scaling_ratio *= relative_ratio
+                scaling_ratio = max(scaling_ratio, 0.1)
                 continue
             ret, frame = cap.read()
 
