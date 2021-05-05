@@ -154,7 +154,7 @@ class DisplayFrameThread(threading.Thread):
                 continue
 
             video_buffer_lock.acquire()
-            print("Video player : Current frame size : "+ str(frame_size))
+            # print("Video player : Current frame size : "+ str(frame_size))
             next_frame = video_buffer[:frame_size]
             video_buffer = video_buffer[frame_size:]
             video_buffer_lock.release()
