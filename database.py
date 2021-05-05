@@ -27,7 +27,7 @@ def go_online(name, ip):
 
 # todo make this exclude the current user
 def get_online_users():
-    return users.find({'$and': {'online': True, '$not': {'ip': get_my_private_ip()}}})
+    return users.find({'$and': [{'online': True}, {'$not': {'ip': get_my_private_ip()}}]})
 
 
 def go_offline(name):

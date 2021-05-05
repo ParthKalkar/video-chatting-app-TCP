@@ -39,7 +39,7 @@ def process_test(pipe: Pipe):
 
 p1, p2 = Pipe()
 child_process = Process(target=process_test, args=(p2,))
-child_process.start()
+# child_process.start()
 p1.send("Hello from parent (sent over the pipe).")
 
 print("Welcome to the best video chat app in the world!")
