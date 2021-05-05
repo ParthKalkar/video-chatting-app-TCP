@@ -57,10 +57,9 @@ class SendFrameThread(threading.Thread):
         frame_count = 0
 
         while True:
-            print("Video server : Frame count " +  str(25*(int(math.ceil(size/4096)))))
             if frame_count == 25:
                 connection.sendall(pickle.dumps(datetime.now()))
-                print("Video server : Size in bytes of datetime now : " + str(len(pickle.dumps(datetime.now()))))
+                print("Video server : Sent own time to client.")
                 frame_count = 0
                 packet_latency = connection.recv(4096)
                 print("Video server : Received back the packet latency.")
@@ -79,14 +78,14 @@ class SendFrameThread(threading.Thread):
                 frame = resize_image(frame, scaling_ratio*relative_ratio)
                 new_size = len(pickle.dumps(frame))
                 print("Video server : The new frame size is " + str(new_size))
-            #
-            #     connection.sendall(bytes(str(new_size), 'utf-8'))
-            #
-            #     ack = connection.recv(4096).decode('utf-8')
-            #
-            #     if ack != "OK":
-            #         print("Wrong final ack when resizing frame. (" + ack + ")")
-            #     # Update things locally : Frame size and the scaling ratio
+
+                connection.sendall(bytes(str(new_size), 'utf-8'))
+
+                ack = connection.recv(4096).decode('utf-8')
+
+                if ack != "OK":
+                    print("Wrong final ack when resizing frame. (" + ack + ")")
+                # Update things locally : Frame size and the scaling ratio
             #     size = new_size
             #     scaling_ratio *= relative_ratio
             #     continue
