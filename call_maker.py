@@ -74,9 +74,6 @@ class InitiateCallThread(threading.Thread):
 
         t1.start()
         t2.start()
-        t1.join()
-        t2.join()
-        video_server.join()
 
         if use_audio:
             print("Starting other audio threads.")
@@ -85,5 +82,9 @@ class InitiateCallThread(threading.Thread):
             t3.join()
             t4.join()
             audio_server.join()
+
+        t1.join()
+        t2.join()
+        video_server.join()
 
         print("Exiting the call making thread.")
