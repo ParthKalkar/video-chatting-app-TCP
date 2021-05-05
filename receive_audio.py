@@ -20,9 +20,9 @@ class ReceiveAudioFrameThread(threading.Thread):
         IP = self.correspondent_ip
         s.connect((IP, port))
 
-        print('Connection established for audio. (Audio receiver)')
+        print('Audio receiver : Connection established for audio.')
         audio_data = s.recv(CHUNK)
-        while audio_data != "":
+        while 1:  # audio_data != "": # todo check which condition is better for the while loop
             global audio_buffer
             try:
                 audio_data = s.recv(CHUNK)
@@ -30,7 +30,7 @@ class ReceiveAudioFrameThread(threading.Thread):
                 audio_buffer += audio_data
                 audio_buffer_lock.release()
             except socket.error:
-                print("Server disconnected.")
+                print("Audio receiver : Server disconnected.")
                 break
         print("Exiting audio receiving thread.")
 
@@ -48,13 +48,15 @@ class PlayAudioThread(threading.Thread):
         CHANNELS = 1
         RATE = 16000
         p = pyaudio.PyAudio()  # todo fix the bug with this shit (only happens when not using localhost)
+        print("Audio player : Audio device opened.")
         stream = p.open(format=FORMAT,
                         channels=CHANNELS,
                         rate=RATE,
                         output=True,
                         frames_per_buffer=CHUNK)
+        print("Audio player : Audio stream opened.")
         stream.start_stream()
-        print("Audio device started.")
+        print("Audio player : Audio stream started.")
         while True:
             global audio_buffer
             if len(audio_buffer) >= CHUNK * 10:
@@ -62,6 +64,8 @@ class PlayAudioThread(threading.Thread):
                 stream.write(audio_buffer[:CHUNK * 5])
                 audio_buffer = audio_buffer[CHUNK * 5:]
                 audio_buffer_lock.release()
+            else:
+                print("Audio player : Buffer under-run (len of buffer < chunk * 10).")
         stream.stop_stream()
         stream.close()
         p.terminate()

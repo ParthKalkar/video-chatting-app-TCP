@@ -17,32 +17,33 @@ class SendAudioFrameThread(threading.Thread):
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
         port = 12346
-        IP = ''
-        print("Server IP : " + IP)
-        s.bind((IP, port))
+        s.bind(('', port))
         s.listen(10)
 
-        print('Socket for audio created and listening.')
+        print('Audio server : Socket for audio created and listening.')
 
         connection, address = s.accept()
 
-        print('Connection for audio from ' + str(address))
+        print('Audio server : Connection for audio from ' + str(address))
 
         p = pyaudio.PyAudio()
+        print("Audio server : audio device opened.")
 
         stream = p.open(format=FORMAT,
                         channels=CHANNELS,
                         rate=RATE,
                         input=True,
                         frames_per_buffer=CHUNK)
+        print("Audio server : Audio stream opened.")
 
         stream.start_stream()
+        print("Audio server : Audio stream started.")
 
         while True:
             try:
                 data = stream.read(CHUNK)
             except Exception as e:
-                print(e)
+                print("Audio server : Exception while sending data : " + str(e))
                 break
             connection.sendall(data)
 
