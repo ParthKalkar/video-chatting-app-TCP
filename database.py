@@ -1,4 +1,5 @@
 import pymongo
+from root import get_my_private_ip
 
 client = pymongo.MongoClient('mongodb+srv://admin_rafik:KomZSX3zBmF13ZKa@main-cluster.atvy1.mongodb.net/test')
 db = client.video_chat_app
@@ -26,7 +27,7 @@ def go_online(name, ip):
 
 # todo make this exclude the current user
 def get_online_users():
-    return users.find({'online': True})
+    return users.find({'$and': {'online': True, '$not': {'ip': get_my_private_ip()}}})
 
 
 def go_offline(name):
