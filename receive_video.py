@@ -80,14 +80,18 @@ class ReceiveFrameThread(threading.Thread):
                 tmp_frame_size_lock.release()
                 buffer_string = "NEW_FRAME_SIZE"
                 # global video_buffer
+                # video_buffer_lock.acquire()
+                packet = packet[:len(packet)-53]
                 video_buffer_lock.acquire()
+                video_buffer += packet
+                # video_buffer_lock.release()
                 video_buffer += bytes(buffer_string, 'utf-8')
                 video_buffer_lock.release()
 
-                s.sendall(b"OK")  # Send ACK
                 total_received_bytes = 0
                 # continue
-                packet = packet[:len(packet)-53]
+                s.sendall(b"OK")  # Send ACK
+                continue
 
             video_buffer_lock.acquire()
             video_buffer += packet
