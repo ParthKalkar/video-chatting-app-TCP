@@ -93,9 +93,9 @@ class SendFrameThread(threading.Thread):
             ret, frame = cap.read()
 
             # SHOW OWN WEBCAM
-            cv2.namedWindow('Your ugly face', cv2.WND_PROP_FULLSCREEN)
-            cv2.imshow('Your ugly face', frame)
-            cv2.waitKey(1)
+            # cv2.namedWindow('Your ugly face', cv2.WND_PROP_FULLSCREEN)
+            # cv2.imshow('Your ugly face', frame)
+            # cv2.waitKey(1)
             # todo check if the above works
 
             frame = resize_image(frame, scaling_ratio)
