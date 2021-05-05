@@ -51,9 +51,9 @@ class CallListeningThread(threading.Thread):
         msg = connection.recv(1024)
         print(f"From {address} : {msg.decode('utf-8')}")
 
-        t1 = ReceiveFrameThread(1, "Receive frame", 1,correspondent_ip)
+        t1 = ReceiveFrameThread(1, "Receive frame", 1, correspondent_ip)
         t2 = DisplayFrameThread(2, "Display frame", 2)
-        t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3,correspondent_ip)
+        t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3, correspondent_ip)
         t4 = PlayAudioThread(4, "Play Audio", 4)
 
         t1.start()
