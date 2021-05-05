@@ -46,10 +46,12 @@ class ReceiveFrameThread(threading.Thread):
                 print("Video receiver : No packet received !!!! Exiting the video receiving thread.")
                 break
 
+            print("Video receiver : Packet size "+str(len(packet)))
+            packet_end = packet[:-53]
             # The size of datetime object is 53 bytes (we are assuming that the packet will be exactly that)
-            if len(packet) == 53 and type(pickle.loads(packet)) == datetime:  # todo check this condition
+            if len(packet_end) == 53 and type(pickle.loads(packet)) == datetime:  # todo check this condition
                 print("Video receiver : Received packet seems to be the server time.")
-                sending_time = pickle.loads(packet)
+                sending_time = pickle.loads(packet_end)
                 print("Video receiver : Received server time.")
                 delta = datetime.now() - sending_time
                 latency = abs(delta.total_seconds())  # todo check that the negative values are not actually a problem
@@ -73,7 +75,8 @@ class ReceiveFrameThread(threading.Thread):
                 # video_buffer_lock.release()
 
                 s.sendall(b"OK")  # Send ACK
-                continue
+                # continue
+                packet = packet[-53:]
             video_buffer_lock.acquire()
             video_buffer += packet
             video_buffer_lock.release()
