@@ -11,7 +11,7 @@ frame_size_lock = []
 tmp_frame_size = [[]]  # to be used when the frame size is changed in the receiver thread but not in the display thread
 tmp_frame_size_lock = []
 
-parallel_connections = 2
+parallel_connections = 5
 
 buffer_ready = False
 

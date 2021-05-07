@@ -108,7 +108,7 @@ class SendFrameThread(threading.Thread):
         port = 12345
         s.bind(('', port))
 
-        parallel_connections = 2
+        parallel_connections = 5
         s.listen(10)
         print('Video server : Socket created and listening.')
 
