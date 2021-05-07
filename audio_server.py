@@ -2,31 +2,50 @@ from root import *
 import pyaudio
 
 
+# Audio format
+CHUNK = 1024
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 16000
+
+# Locks
+audio_stream_lock = threading.Lock()
+
+# Network info
+parallel_connections = 10
+
+
+def audio_stream(connection, stream):
+    while True:
+        try:
+            audio_stream_lock.acquire()
+            data = stream.read(CHUNK)
+            audio_stream_lock.release()
+        except Exception as e:
+            print("Audio server : Exception while sending data : " + str(e))
+            break
+        connection.sendall(data)
+
+
 class SendAudioFrameThread(threading.Thread):
-    def __init__(self, threadID, name, counter):
+    def __init__(self, thread_id, name, counter):
         threading.Thread.__init__(self)
-        self.threadID = threadID
+        self.threadID = thread_id
         self.name = name
         self.counter = counter
 
     def run(self) -> None:
-        CHUNK = 4096
-        FORMAT = pyaudio.paInt16
-        CHANNELS = 1
-        RATE = 16000
-
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         port = 12346
         s.bind(('', port))
-        s.listen(10)
+
+        s.listen(parallel_connections)
 
         print('Audio server : Socket for audio created and listening.')
 
-        connection, address = s.accept()
-
-        print('Audio server : Connection for audio from ' + str(address))
-
         p = pyaudio.PyAudio()
+        print(f'Audio server : Device count : {p.get_device_count()}')
         print("Audio server : audio device opened.")
 
         stream = p.open(format=FORMAT,
@@ -39,13 +58,17 @@ class SendAudioFrameThread(threading.Thread):
         stream.start_stream()
         print("Audio server : Audio stream started.")
 
-        while True:
-            try:
-                data = stream.read(CHUNK)
-            except Exception as e:
-                print("Audio server : Exception while sending data : " + str(e))
-                break
-            connection.sendall(data)
+        threads = []
+
+        for i in range(parallel_connections):
+            connection, address = s.accept()
+            print('Audio server : Connection for audio from ' + str(address))
+            new_thread = threading.Thread(target=audio_stream, args=(connection, stream,))
+            new_thread.start()
+            threads.append(new_thread)
+
+        for th in threads:
+            th.join()
 
         stream.stop_stream()
         stream.close()

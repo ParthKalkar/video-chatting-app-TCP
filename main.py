@@ -2,6 +2,7 @@ from os import environ
 from call_listener import *
 from call_maker import *
 from multiprocessing import Process, Pipe
+import subprocess
 
 # Logging
 # todo elaborate the logging and actually use it
@@ -60,17 +61,26 @@ while 1:
     else:
         print("Invalid input /!\\ please try again.")
 
-if choice == 'n':
-    t_init = CallListeningThread(30, "Listen for call", 30)
-    t_init.start()
-    t_init.join()
-else:
-    t_listen = InitiateCallThread(30, "Make a call", 30)
-    t_listen.start()
-    t_listen.join()
+try:
+    if choice == 'n':
+        t_init = CallListeningThread(30, "Listen for call", 30)
+        t_init.start()
+        t_init.join()
+    else:
+        t_listen = InitiateCallThread(30, "Make a call", 30)
+        t_listen.start()
+        t_listen.join()
+except KeyboardInterrupt:
+    # So that the user sign-off routine would work if I interrupt the program.
+    print("Program stopped with a keyboard interrupt.")
+
 
 # This will delete the user after he finishes
 print("Signing off user")
 go_offline(username)
+
+# the following requires sudo access
+# print("Freeing ports.")
+# subprocess.call(['bash', './clear_ports.sh'])
 
 print("Exiting main thread")
