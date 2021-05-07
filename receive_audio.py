@@ -14,7 +14,7 @@ audio_buffer = b""
 audio_buffer_lock = threading.Lock()
 
 # Connection info
-parallel_connections = 30
+parallel_connections = 80
 
 
 def new_connection(ip):
