@@ -93,8 +93,8 @@ def receive_frames(s, connection_id):
             buffer_string = "NEW_FRAME_SIZE"
             packet = packet[:len(packet) - 53]
             video_buffer_lock[connection_id].acquire()
-            video_buffer += packet
-            video_buffer += bytes(buffer_string, 'utf-8')
+            video_buffer[connection_id] += packet
+            video_buffer[connection_id] += bytes(buffer_string, 'utf-8')
             video_buffer_lock[connection_id].release()
 
             total_received_bytes = 0
@@ -103,7 +103,13 @@ def receive_frames(s, connection_id):
             continue
 
         video_buffer_lock[connection_id].acquire()
-        video_buffer[connection_id] += packet
+        try:
+            video_buffer[connection_id] += packet
+        except IndexError as e:
+            print("Exceeeeeption" + str(e))
+            print("ID : " + str(connection_id))
+            print("Video buffer size : " + str(len(video_buffer)))
+
         video_buffer_lock[connection_id].release()
         time.sleep(0.01)
     print('Video receiver : Exiting child video receiving thread.')
@@ -120,7 +126,8 @@ class ReceiveFrameThread(threading.Thread):
 
     def run(self):
         init_locks_and_buffers(parallel_connections)
-
+        print("After buffer init : \n")
+        print(video_buffer)
         connection_threads = []
         for i in range(parallel_connections):
             s = new_connection(self.correspondent_ip)
@@ -194,7 +201,7 @@ class DisplayFrameThread(threading.Thread):
 
                 video_buffer_lock[i].acquire()
                 next_frame = video_buffer[i][:frame_size[i]]
-                video_buffer = video_buffer[i][frame_size[i]:]
+                video_buffer[i] = video_buffer[i][frame_size[i]:]
                 video_buffer_lock[i].release()
 
                 frame = pickle.loads(next_frame)
