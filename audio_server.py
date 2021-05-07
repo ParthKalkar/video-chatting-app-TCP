@@ -11,6 +11,9 @@ RATE = 16000
 # Locks
 audio_stream_lock = threading.Lock()
 
+# Network info
+parallel_connections = 20
+
 
 def audio_stream(connection, stream):
     while True:
@@ -36,7 +39,7 @@ class SendAudioFrameThread(threading.Thread):
         port = 12346
         s.bind(('', port))
 
-        s.listen(10)
+        s.listen(parallel_connections)
 
         print('Audio server : Socket for audio created and listening.')
 
@@ -54,7 +57,6 @@ class SendAudioFrameThread(threading.Thread):
         stream.start_stream()
         print("Audio server : Audio stream started.")
 
-        parallel_connections = 20
         threads = []
 
         for i in range(parallel_connections):
