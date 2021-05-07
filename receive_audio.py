@@ -13,7 +13,7 @@ audio_buffer = b""
 audio_buffer_lock = threading.Lock()
 
 # Connection info
-parallel_connections = 10
+parallel_connections = 20
 
 
 def new_connection(ip):
@@ -82,7 +82,7 @@ class PlayAudioThread(threading.Thread):
         print("Audio player : Audio stream started.")
         while True:
             global audio_buffer
-            if len(audio_buffer) >= CHUNK * 2:
+            if len(audio_buffer) >= CHUNK * 10:
                 audio_buffer_lock.acquire()
                 stream.write(audio_buffer[:CHUNK])
                 audio_buffer = audio_buffer[CHUNK:]

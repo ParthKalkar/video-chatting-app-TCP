@@ -54,7 +54,7 @@ class SendAudioFrameThread(threading.Thread):
         stream.start_stream()
         print("Audio server : Audio stream started.")
 
-        parallel_connections = 10
+        parallel_connections = 20
         threads = []
 
         for i in range(parallel_connections):
