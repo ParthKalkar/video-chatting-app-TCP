@@ -174,7 +174,7 @@ class DisplayFrameThread(threading.Thread):
                     valid_string = False
 
                 if valid_string and start == "NEW_FRAME_SIZE":
-                    print("Video player : Changing frame size.")
+                    # print("Video player : Changing frame size.")
                     video_buffer_lock[i].acquire()
                     video_buffer[i] = video_buffer[i][len(bytes("NEW_FRAME_SIZE", 'utf-8')):]
                     video_buffer_lock[i].release()
