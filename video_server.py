@@ -59,7 +59,7 @@ def video_stream(connection, cap):
             if not ret:
                 print("ERROR : couldn't read from webcam while resizing frame! (Unknown reason)")
                 break
-            frame = resize_image(frame, max(0.1, scaling_ratio * relative_ratio))
+            frame = resize_image(frame, max(0.5, scaling_ratio * relative_ratio))
             new_size = len(pickle.dumps(frame))
             print("Video server : The new frame size is " + str(new_size))
 
@@ -72,7 +72,7 @@ def video_stream(connection, cap):
             # Update things locally : Frame size and the scaling ratio
             size = new_size
             scaling_ratio *= relative_ratio
-            scaling_ratio = max(scaling_ratio, 0.1)
+            scaling_ratio = max(scaling_ratio, 0.5)
             continue
         video_cap_lock.acquire()
         ret, frame = cap.read()
@@ -108,8 +108,8 @@ class SendFrameThread(threading.Thread):
         port = 12345
         s.bind(('', port))
 
-        parallel_connections = 15
-        s.listen(10)
+        parallel_connections = 20
+        s.listen(parallel_connections)
         print('Video server : Socket created and listening.')
 
         cap = cv2.VideoCapture(0)
