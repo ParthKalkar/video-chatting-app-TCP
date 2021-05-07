@@ -12,7 +12,7 @@ RATE = 16000
 audio_stream_lock = threading.Lock()
 
 # Network info
-parallel_connections = 20
+parallel_connections = 30
 
 
 def audio_stream(connection, stream):
