@@ -4,12 +4,14 @@ import time
 import pickle
 from datetime import datetime
 
-video_buffer = []
+video_buffer = [b""]
 video_buffer_lock = []
-frame_size = []
+frame_size = [-1]
 frame_size_lock = []
-tmp_frame_size = []  # to be used when the frame size is changed in the receiver thread but not in the display thread
+tmp_frame_size = [[]]  # to be used when the frame size is changed in the receiver thread but not in the display thread
 tmp_frame_size_lock = []
+
+parallel_connections = 5
 
 
 def init_locks_and_buffers(number_of_connections):
@@ -113,8 +115,6 @@ class ReceiveFrameThread(threading.Thread):
         self.correspondent_ip = correspondent_ip
 
     def run(self):
-        parallel_connections = 5
-
         init_locks_and_buffers(parallel_connections)
 
         connection_threads = []
@@ -132,7 +132,6 @@ class ReceiveFrameThread(threading.Thread):
         print("Exiting the main video receiver thread.")
 
 
-
 class DisplayFrameThread(threading.Thread):
     def __init__(self, thread_id, name, counter):
         threading.Thread.__init__(self)
@@ -143,53 +142,55 @@ class DisplayFrameThread(threading.Thread):
     def run(self) -> None:
         print("Displaying frame thread started")
         while 1:
-            global video_buffer
-            global frame_size
-            if len(video_buffer) < len(bytes("NEW_FRAME_SIZE", 'utf-8')):
-                continue
-            video_buffer_lock.acquire()
-            start = video_buffer[:len(bytes("NEW_FRAME_SIZE", 'utf-8'))]
-            video_buffer_lock.release()  # todo check that I don't need a lock here
+            for i in range(parallel_connections):
+                global video_buffer
+                global frame_size
+                if len(video_buffer[i]) < len(bytes("NEW_FRAME_SIZE", 'utf-8')):
+                    continue
+                video_buffer_lock[i].acquire()
+                start = video_buffer[i][:len(bytes("NEW_FRAME_SIZE", 'utf-8'))]
+                video_buffer_lock[i].release()  # todo check that I don't need a lock here
 
-            valid_string = True
-            try:
-                start = start.decode('utf-8')
-            except UnicodeDecodeError as e:
-                valid_string = False
+                valid_string = True
+                try:
+                    start = start.decode('utf-8')
+                except UnicodeDecodeError as e:
+                    valid_string = False
 
-            if valid_string and start == "NEW_FRAME_SIZE":
-                print("Video player : Changing frame size.")
-                video_buffer_lock.acquire()
-                video_buffer = video_buffer[len(bytes("NEW_FRAME_SIZE", 'utf-8')):]
-                video_buffer_lock.release()
-                # global frame_size
-                global tmp_frame_size  # todo check if I need a lock here
-                tmp_frame_size_lock.acquire()
-                frame_size = tmp_frame_size[0]
-                tmp_frame_size = tmp_frame_size[1:]
-                tmp_frame_size_lock.release()
-                continue
+                if valid_string and start == "NEW_FRAME_SIZE":
+                    print("Video player : Changing frame size.")
+                    video_buffer_lock[i].acquire()
+                    video_buffer[i] = video_buffer[i][len(bytes("NEW_FRAME_SIZE", 'utf-8')):]
+                    video_buffer_lock[i].release()
+                    # global frame_size
+                    global tmp_frame_size  # todo check if I need a lock here
+                    tmp_frame_size_lock[i].acquire()
+                    frame_size[i] = tmp_frame_size[i][0]
+                    tmp_frame_size[i] = tmp_frame_size[i][1:]
+                    tmp_frame_size_lock[i].release()
+                    continue
 
-            if len(video_buffer) == 0 or frame_size == -1 or len(video_buffer) < frame_size:
-                time.sleep(0.05)
-                continue
+                if len(video_buffer[i]) == 0 or frame_size[i] == -1 or len(video_buffer[i]) < frame_size[i]:
+                    time.sleep(0.008)
+                    continue
 
-            # If there is more than 1 second of video in the buffer, skip it (assuming 25 fps)
-            # todo see if this is actually useful, because the buffer itself is not the bottleneck
-            if len(video_buffer) > frame_size * 25:
-                video_buffer_lock.acquire()
-                video_buffer = b""
-                print("Video player : Too many frames in the buffer, clearing buffer.")
-                video_buffer_lock.release()
-                continue
+                # If there is more than 1 second of video in the buffer, skip it (assuming 25 fps)
+                # todo see if this is actually useful, because the buffer itself is not the bottleneck
+                if len(video_buffer[i]) > frame_size[i] * 25:
+                    video_buffer_lock[i].acquire()
+                    video_buffer[i] = b""
+                    print("Video player : Too many frames in the buffer, clearing buffer.")
+                    video_buffer_lock[i].release()
+                    continue
 
-            video_buffer_lock.acquire()
-            # print("Video player : Current frame size : "+ str(frame_size))
-            next_frame = video_buffer[:frame_size]
-            video_buffer = video_buffer[frame_size:]
-            video_buffer_lock.release()
-            frame = pickle.loads(next_frame)
-            cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
-            cv2.imshow('frame', frame)
-            cv2.waitKey(1)
+                video_buffer_lock[i].acquire()
+                next_frame = video_buffer[i][:frame_size[i]]
+                video_buffer = video_buffer[i][frame_size[i]:]
+                video_buffer_lock[i].release()
+
+                frame = pickle.loads(next_frame)
+                cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
+                cv2.imshow('frame', frame)
+                cv2.waitKey(1)
+
         print("Exiting video playing thread.")
