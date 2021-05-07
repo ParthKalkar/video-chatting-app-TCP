@@ -83,10 +83,10 @@ class PlayAudioThread(threading.Thread):
         print("Audio player : Audio stream started.")
         while True:
             global audio_buffer
-            if len(audio_buffer) >= CHUNK:
+            if len(audio_buffer) >= 5*CHUNK:
                 audio_buffer_lock.acquire()
-                stream.write(audio_buffer[:CHUNK])
-                audio_buffer = audio_buffer[CHUNK:]
+                stream.write(audio_buffer[:5*CHUNK])
+                audio_buffer = audio_buffer[5*CHUNK:]
                 audio_buffer_lock.release()
             else:
                 # We write silence
