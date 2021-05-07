@@ -3,10 +3,10 @@ import pyaudio
 
 
 # Audio format
-CHUNK = 4096
+CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RATE = 7000
+RATE = 16000
 
 # Locks
 audio_stream_lock = threading.Lock()

@@ -3,10 +3,10 @@ import pyaudio
 
 
 # Audio info
-CHUNK = 4096
+CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RATE = 7000
+RATE = 16000
 
 # Buffers and locks
 audio_buffer = b""
@@ -82,10 +82,10 @@ class PlayAudioThread(threading.Thread):
         print("Audio player : Audio stream started.")
         while True:
             global audio_buffer
-            if len(audio_buffer) >= CHUNK * 150:
+            if len(audio_buffer) >= CHUNK * 15:
                 audio_buffer_lock.acquire()
-                stream.write(audio_buffer[:50*CHUNK])
-                audio_buffer = audio_buffer[50*CHUNK:]
+                stream.write(audio_buffer[:5*CHUNK])
+                audio_buffer = audio_buffer[5*CHUNK:]
                 audio_buffer_lock.release()
             # Just for debugging (to see if we are having under runs)
             # else:
