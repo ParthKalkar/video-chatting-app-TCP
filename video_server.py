@@ -17,10 +17,10 @@ def resize_image(src, ratio):
     return cv2.resize(src, new_size)
 
 
-def video_stream(connection):
+def video_stream(connection, cap):
     # todo add the appropriate locks (for cap) (if using one cap object passed to function)
     scaling_ratio = 0.1
-    cap = cv2.VideoCapture(0)
+    # cap = cv2.VideoCapture(0)
     print('Video server : Established webcam stream from child server thread.')
     # Initial frame size check
     ret, frame = cap.read()
@@ -113,7 +113,7 @@ class SendFrameThread(threading.Thread):
             print('Video server : Connection from ' + str(address) + f' (connection number {i})')
 
             # todo global cap object?
-            new_thread = threading.Thread(target=video_stream, args=(connection,))
+            new_thread = threading.Thread(target=video_stream, args=(connection, cap,))
             new_thread.start()
             streaming_threads.append(new_thread)
 
