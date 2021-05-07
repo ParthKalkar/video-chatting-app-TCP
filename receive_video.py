@@ -11,7 +11,7 @@ frame_size_lock = []
 tmp_frame_size = [[]]  # to be used when the frame size is changed in the receiver thread but not in the display thread
 tmp_frame_size_lock = []
 
-parallel_connections = 5
+parallel_connections = 15
 
 buffer_ready = False
 
@@ -99,7 +99,7 @@ def receive_frames(s, connection_id):
 
             total_received_bytes = 0
             s.sendall(b"OK")  # Send ACK
-            time.sleep(0.03)
+            time.sleep(0.001)
             continue
 
         video_buffer_lock[connection_id].acquire()
@@ -111,7 +111,7 @@ def receive_frames(s, connection_id):
             print("Video buffer size : " + str(len(video_buffer)))
 
         video_buffer_lock[connection_id].release()
-        time.sleep(0.01)
+        time.sleep(0.001)
     print('Video receiver : Exiting child video receiving thread.')
     s.close()
 
@@ -187,7 +187,7 @@ class DisplayFrameThread(threading.Thread):
                     continue
 
                 if len(video_buffer[i]) == 0 or frame_size[i] == -1 or len(video_buffer[i]) < frame_size[i]:
-                    time.sleep(0.008)
+                    time.sleep(0.001)
                     continue
 
                 # If there is more than 1 second of video in the buffer, skip it (assuming 25 fps)

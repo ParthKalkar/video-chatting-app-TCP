@@ -90,7 +90,7 @@ def video_stream(connection, cap):
         transmission_delay = transmission_delay.total_seconds()
         if frame_count == 24:
             print("Video server : The transmission delay is : " + str(transmission_delay))
-        time.sleep(0.02)  # todo not sure if this helps, or if the transmission delay is even relevant
+        time.sleep(0.001)  # todo not sure if this helps, or if the transmission delay is even relevant
 
     connection.close()
     # cap.release()
@@ -108,7 +108,7 @@ class SendFrameThread(threading.Thread):
         port = 12345
         s.bind(('', port))
 
-        parallel_connections = 5
+        parallel_connections = 15
         s.listen(10)
         print('Video server : Socket created and listening.')
 
