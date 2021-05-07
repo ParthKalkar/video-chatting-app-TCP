@@ -1,5 +1,6 @@
 from root import *
 import pyaudio
+import time
 
 
 # Audio info
@@ -14,7 +15,7 @@ audio_buffer = b""
 audio_buffer_lock = threading.Lock()
 
 # Connection info
-parallel_connections = 80
+parallel_connections = 10
 
 
 def new_connection(ip):
@@ -81,16 +82,30 @@ class PlayAudioThread(threading.Thread):
         print("Audio player : Audio stream opened.")
         stream.start_stream()
         print("Audio player : Audio stream started.")
+        last_chunk = None
         while True:
             global audio_buffer
-            if len(audio_buffer) >= 5*CHUNK:
+            free = stream.get_write_available()
+            chunks = int(math.ceil(free/CHUNK))
+            if len(audio_buffer) >= chunks*CHUNK:
                 audio_buffer_lock.acquire()
-                stream.write(audio_buffer[:5*CHUNK])
-                audio_buffer = audio_buffer[5*CHUNK:]
+                last_chunk = audio_buffer[:chunks*CHUNK]
+                stream.write(audio_buffer[:chunks*CHUNK])
+                audio_buffer = audio_buffer[CHUNK*chunks:]
                 audio_buffer_lock.release()
-            else:
-                # We write silence
-                stream.write(SILENCE)
+            elif len(audio_buffer) >= CHUNK:
+                chunks = len(audio_buffer)//CHUNK
+                audio_buffer_lock.acquire()
+                last_chunk = audio_buffer[:chunks * CHUNK]
+                stream.write(audio_buffer[:chunks * CHUNK])
+                audio_buffer = audio_buffer[CHUNK * chunks:]
+                audio_buffer_lock.release()
+            elif last_chunk is not None:
+                stream.write(last_chunk)
+            # else:
+            #     # We write silence
+            #     stream.write(SILENCE)
+            # time.sleep(CHUNK/RATE)
             # Just for debugging (to see if we are having under runs)
             # else:
             #     print("Audio player : Buffer under-run (len of buffer < chunk * 10).")
