@@ -2,6 +2,7 @@ from os import environ
 from call_listener import *
 from call_maker import *
 from multiprocessing import Process, Pipe
+import subprocess
 
 # Logging
 # todo elaborate the logging and actually use it
@@ -77,5 +78,9 @@ except KeyboardInterrupt:
 # This will delete the user after he finishes
 print("Signing off user")
 go_offline(username)
+
+# the following requires sudo access
+# print("Freeing ports.")
+# subprocess.call(['bash', './clear_ports.sh'])
 
 print("Exiting main thread")
