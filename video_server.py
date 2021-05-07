@@ -21,7 +21,7 @@ def resize_image(src, ratio):
 
 def video_stream(connection, cap):
     # todo add the appropriate locks (for cap) (if using one cap object passed to function)
-    scaling_ratio = 0.1
+    scaling_ratio = 0.6
     # cap = cv2.VideoCapture(0)
     print('Video server : Established webcam stream from child server thread.')
     # Initial frame size check
