@@ -6,6 +6,8 @@ from datetime import datetime
 
 MAX_LATENCY = 0.09  # The maximum allowed latency in seconds
 
+video_cap_lock = threading.Lock()
+
 
 def resize_image(src, ratio):
     width = int(src.shape[1] * ratio)
@@ -23,7 +25,9 @@ def video_stream(connection, cap):
     # cap = cv2.VideoCapture(0)
     print('Video server : Established webcam stream from child server thread.')
     # Initial frame size check
+    video_cap_lock.acquire()
     ret, frame = cap.read()
+    video_cap_lock.release()
     frame = resize_image(frame, scaling_ratio)
     frame = pickle.dumps(frame)
     size = len(frame)
@@ -49,7 +53,9 @@ def video_stream(connection, cap):
             # For now we will find the new ratio
             # find the relative ratio compared to the current frame size
             relative_ratio = math.sqrt(new_frame_size / size)
+            video_cap_lock.acquire()
             ret, frame = cap.read()
+            video_cap_lock.release()
             if not ret:
                 print("ERROR : couldn't read from webcam while resizing frame! (Unknown reason)")
                 break
@@ -68,7 +74,9 @@ def video_stream(connection, cap):
             scaling_ratio *= relative_ratio
             scaling_ratio = max(scaling_ratio, 0.1)
             continue
+        video_cap_lock.acquire()
         ret, frame = cap.read()
+        video_cap_lock.release()
 
         frame = resize_image(frame, scaling_ratio)
         if not ret:
@@ -85,7 +93,7 @@ def video_stream(connection, cap):
         time.sleep(0.02)  # todo not sure if this helps, or if the transmission delay is even relevant
 
     connection.close()
-    cap.release()
+    # cap.release()
 
 
 class SendFrameThread(threading.Thread):
@@ -100,7 +108,7 @@ class SendFrameThread(threading.Thread):
         port = 12345
         s.bind(('', port))
 
-        parallel_connections = 5
+        parallel_connections = 2
         s.listen(10)
         print('Video server : Socket created and listening.')
 
