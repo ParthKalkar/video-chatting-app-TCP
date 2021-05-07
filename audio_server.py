@@ -41,6 +41,7 @@ class SendAudioFrameThread(threading.Thread):
         print('Audio server : Socket for audio created and listening.')
 
         p = pyaudio.PyAudio()
+        print(f'Audio server : Device count : {p.get_device_count()}')
         print("Audio server : audio device opened.")
 
         stream = p.open(format=FORMAT,

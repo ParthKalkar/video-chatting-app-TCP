@@ -88,8 +88,8 @@ class PlayAudioThread(threading.Thread):
                 audio_buffer = audio_buffer[CHUNK:]
                 audio_buffer_lock.release()
             # Just for debugging (to see if we are having under runs)
-            else:
-                print("Audio player : Buffer under-run (len of buffer < chunk * 10).")
+            # else:
+            #     print("Audio player : Buffer under-run (len of buffer < chunk * 10).")
         stream.stop_stream()
         stream.close()
         p.terminate()
