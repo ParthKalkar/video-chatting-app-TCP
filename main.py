@@ -60,14 +60,19 @@ while 1:
     else:
         print("Invalid input /!\\ please try again.")
 
-if choice == 'n':
-    t_init = CallListeningThread(30, "Listen for call", 30)
-    t_init.start()
-    t_init.join()
-else:
-    t_listen = InitiateCallThread(30, "Make a call", 30)
-    t_listen.start()
-    t_listen.join()
+try:
+    if choice == 'n':
+        t_init = CallListeningThread(30, "Listen for call", 30)
+        t_init.start()
+        t_init.join()
+    else:
+        t_listen = InitiateCallThread(30, "Make a call", 30)
+        t_listen.start()
+        t_listen.join()
+except KeyboardInterrupt:
+    # So that the user sign-off routine would work if I interrupt the program.
+    print("Program stopped with a keyboard interrupt.")
+
 
 # This will delete the user after he finishes
 print("Signing off user")
