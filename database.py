@@ -15,7 +15,7 @@ def signup(name):
     ip = get_my_private_ip()
     ex = users.find({'ip': ip})
 
-    if ex is not None or len(list(ex)) > 0:
+    if len(list(ex)) > 0:
         users.update_one({'ip': ip}, {'$set': {'name': name}})
         return
 
