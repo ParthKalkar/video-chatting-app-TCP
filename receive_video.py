@@ -13,6 +13,8 @@ tmp_frame_size_lock = []
 
 parallel_connections = 5
 
+buffer_ready = False
+
 
 def init_locks_and_buffers(number_of_connections):
     global video_buffer, video_buffer_lock, frame_size, frame_size_lock, tmp_frame_size, tmp_frame_size_lock
@@ -33,7 +35,8 @@ def init_locks_and_buffers(number_of_connections):
         video_buffer_lock.append(threading.Lock())
         frame_size_lock.append(threading.Lock())
         tmp_frame_size_lock.append(threading.Lock())
-
+    global buffer_ready
+    buffer_ready = True
 
 def new_connection(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
@@ -141,6 +144,11 @@ class DisplayFrameThread(threading.Thread):
 
     def run(self) -> None:
         print("Displaying frame thread started")
+
+        # This is to make sure buffers are initialized before reading frames
+        while not buffer_ready:
+            time.sleep(0.05)
+
         while 1:
             for i in range(parallel_connections):
                 global video_buffer
