@@ -1,7 +1,9 @@
 import socket
 import time
+import threading
 
 import redis
+from database import *
 
 '''
 The backend_server runs in a separate process, and it communicates with:
@@ -18,12 +20,35 @@ The Python processes are mainly:
 '''
 
 
+def online_list_listener(r: redis.Redis):
+    while True:
+        r.set("online_list", get_online_users())
+        time.sleep(0.05)
+
+
 def backend_server_redis():
     r = redis.Redis()
     r.set("python_started", True)
-    while 1:
 
-        # Need to implement a good protocol here, will probably be easier then sockets
+    current_username = None
+    online_list_listener_thread = threading.Thread(target=online_list_listener, args=(r,))
+    while 1:
+        # Check username
+        username = r.get("username")
+        if username != current_username:
+            signup(username)
+            # todo start the call listener here
+            if not online_list_listener_thread.is_alive():
+                online_list_listener_thread.start()
+
+        # Check for making a call
+        make_call = r.get("make_call")
+        if make_call:
+            r.get("correspondent_id")
+            # todo start the call making thread (will check for use_video and use_audio)
+
+        # todo check incoming call (maybe in the call listening thread)
+        # todo
 
         close = r.get("quit")
         if close:
