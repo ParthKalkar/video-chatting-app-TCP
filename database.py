@@ -12,6 +12,13 @@ print("Successfully connected to the database ✓")
 # todo make the name stored in a local file, so that we don't add a new user to the db everytime the same user connects
 
 def signup(name):
+    ip = get_my_private_ip()
+    ex = users.find({'ip': ip})
+
+    if len(list(ex)) > 0:
+        users.update_one({'ip': ip}, {'$set': {'name': name}})
+        return
+
     user = {
         'name': name,
         'online': False
@@ -27,14 +34,14 @@ def go_online(name, ip):
 
 # todo make this exclude the current user
 def get_online_users():
-    return users.find({'$and': {'online': True, '$not': {'ip': get_my_private_ip()}}})
+    return users.find({'online': True, 'ip': {'$ne': get_my_private_ip()}})
 
 
 def go_offline(name):
     users.update_one({'name': name}, {'$set': {'online': False}})
     # For now, we will delete the user each time
     # todo maybe we can use another method?
-    users.remove({'name': name})
+    # users.remove({'name': name})
 
 
 def get_user_ip(name):

@@ -3,6 +3,23 @@ from receive_audio import *
 from audio_server import *
 from video_server import *
 from database import *
+import multiprocessing
+
+
+# These functions will run in separate processes
+def start_audio_server():
+    audio_server = SendAudioFrameThread(11, "Send Video", 11)
+    audio_server.start()
+    audio_server.join()
+
+
+def start_audio_receiver(correspondent_ip):
+    t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3, correspondent_ip)
+    t4 = PlayAudioThread(4, "Play Audio", 4)
+    t3.start()
+    t4.start()
+    t3.join()
+    t4.join()
 
 
 class InitiateCallThread(threading.Thread):
@@ -48,41 +65,41 @@ class InitiateCallThread(threading.Thread):
         s.sendall((b"Call", b"Call NO AUDIO")[not use_audio])
 
         msg = s.recv(1024)
-        print('Your correspondent said ' + msg.decode('utf-8'))
+        print('Your correspondent said : ' + msg.decode('utf-8'))
 
         s.sendall(bytes(my_ip, 'utf-8'))
 
         video_server = SendFrameThread(10, "Send Video", 10)
         video_server.start()
 
-        audio_server = SendAudioFrameThread(11, "Send Video", 11)
-
+        audio_server_process = multiprocessing.Process(target=start_audio_server)
         if use_audio:
-            audio_server.start()
+            print("Call listener : AUDIO ENABLED.")
+            audio_server_process.start()
 
         msg = s.recv(1024)
         print('Your correspondent gave back their IP : ' + msg.decode('utf-8'))
-        #global correspondent_ip
         correspondent_ip = msg.decode('utf-8')
 
         s.sendall(b"OK")
 
         t1 = ReceiveFrameThread(1, "Receive frame", 1, correspondent_ip)
         t2 = DisplayFrameThread(2, "Display frame", 2)
-        t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3, correspondent_ip)
-        t4 = PlayAudioThread(4, "Play Audio", 4)
 
         t1.start()
         t2.start()
+
+        receiving_audio_process = multiprocessing.Process(target=start_audio_receiver, args=(correspondent_ip,))
+
+        if use_audio:
+            receiving_audio_process.start()
+
         t1.join()
         t2.join()
         video_server.join()
 
         if use_audio:
-            t3.start()
-            t4.start()
-            t3.join()
-            t4.join()
-            audio_server.join()
+            receiving_audio_process.join()
+            audio_server_process.join()
 
         print("Exiting the call making thread.")
