@@ -18,8 +18,8 @@
         <p> Copyright © Rafik Hachana, Parth Kalkar, Igor Mpore </p>
     </footer>
 <!-- Images to load -->
-    <div class="imagewrapper1"> -->
-        <img class="image1" src="./Images/Image-large-call.png" alt="">
+    <div class="imagewrapper1">
+        <img class="image1" src="./Images/Image-large-call.png" alt="" >
     </div>
 
     <div class="imagewrapper2">
@@ -27,8 +27,8 @@
     </div>
 
 <!-- Three buttons -->
-    <button class="vid-on-talking">
-            <img class="talking" src="./Images/Video-On.svg" alt="">
+    <button class="vid-on-talking" >
+            <img class="talking" src="./Images/Video-On.svg" alt="" id="vid-on-talking" onclick="vidImage(this)">
     </button>
 
     <button class="end-call-talking">
@@ -36,10 +36,13 @@
     </button>
 
     <button class="mic-on-talking"> 
-            <img class="talking" src="./Images/mic-on.svg" alt="">
+            <img class="talking" src="./Images/mic-on.svg" alt="" id="mic-on-talking" onclick="micImage(this)">
     </button>
     
 <!-- Background -->
     <img class="bkimage" src="./Images/Background.svg" alt="">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>

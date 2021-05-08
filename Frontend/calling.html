@@ -23,14 +23,14 @@
 <!-- Three buttons -->
         <div class="calling-icons">
             <button class="call-buttons">
-                <img class="vid-on" src="./Images/Video-On.svg" alt="">
+                <img class="vid-on" src="./Images/Video-On.svg" alt="" id="vid-on-calling" onclick="vidImage(this)">
             </button>
             <button class="call-buttons">
                 <img class="end-call" src="./Images/End-Call.svg" alt="">
             </button>
 
             <button class="call-buttons">
-                <img class="mic-on" src="./Images/mic-on.svg" alt="">
+                <img class="mic-on" src="./Images/mic-on.svg" alt="" id="mic-on-calling" onclick="micImage(this)">
             </button>
         </div>
 
@@ -41,5 +41,8 @@
 
 <!-- Background image  -->
     <img class="bkimage" src="./Images/Background.svg" alt="">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
