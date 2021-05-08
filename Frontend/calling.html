@@ -13,24 +13,36 @@
     <header> 
         <h1> Innopolis Video Chat Over TCP </h1>
     </header>
-
-    <main>
+    
         <div class="caller-name">
             <p> Calling Parth Kalkar master Kamil ... </p>  
         </div>
+<!-- Icon of any person being called -->
         <img class="person-icon" src="./Images/Personal-account-icon.svg" alt="">
+
+<!-- Three buttons -->
         <div class="calling-icons">
-            <img class="vid-on" src="./Images/Video-On.svg" alt="">
-            <img class="end-call" src="./Images/End-Call.svg" alt="">
-            <img class="mic-on" src="./Images/mic-on.svg" alt="">
+            <button class="call-buttons">
+                <img class="vid-on" src="./Images/Video-On.svg" alt="" id="vid-on-calling" onclick="vidImage(this)">
+            </button>
+            <button class="call-buttons">
+                <img class="end-call" src="./Images/End-Call.svg" alt="">
+            </button>
+
+            <button class="call-buttons">
+                <img class="mic-on" src="./Images/mic-on.svg" alt="" id="mic-on-calling" onclick="micImage(this)">
+            </button>
         </div>
 
-    </main>
-
+<!-- Footer with copyrights -->
     <footer>
         <p> Copyright © Rafik Hachana, Parth Kalkar, Igor Mpore </p>
     </footer>
 
+<!-- Background image  -->
     <img class="bkimage" src="./Images/Background.svg" alt="">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
