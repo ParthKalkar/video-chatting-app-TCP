@@ -80,7 +80,7 @@ class InitiateCallThread(threading.Thread):
         self.r.set("status", "call")
         s.sendall(bytes(my_ip, 'utf-8'))
 
-        video_server = SendFrameThread(10, "Send Video", 10)
+        video_server = SendFrameThread(10, "Send Video", 10, self.r)
         video_server.start()
 
         audio_server_process = multiprocessing.Process(target=start_audio_server, args=(self.r,))

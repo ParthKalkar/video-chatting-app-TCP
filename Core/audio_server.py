@@ -69,7 +69,7 @@ class SendAudioFrameThread(threading.Thread):
         for i in range(parallel_connections):
             connection, address = s.accept()
             print('Audio server : Connection for audio from ' + str(address))
-            new_thread = threading.Thread(target=audio_stream, args=(connection, stream, self.r))
+            new_thread = threading.Thread(target=audio_stream, args=(connection, stream, self.r,))
             new_thread.start()
             threads.append(new_thread)
 

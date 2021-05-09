@@ -79,7 +79,7 @@ class CallListeningThread(threading.Thread):
         connection.sendall(b"OK")
 
         # Start my own video and audio servers
-        video_server = SendFrameThread(10, "Send Video", 10)
+        video_server = SendFrameThread(10, "Send Video", 10, self.r)
         video_server.start()
 
         audio_server_process = multiprocessing.Process(target=start_audio_server, args=(self.r,))
@@ -108,7 +108,7 @@ class CallListeningThread(threading.Thread):
         t1.start()
         t2.start()
 
-        receiving_audio_process = multiprocessing.Process(target=start_audio_receiver, args=(correspondent_ip,self.r,))
+        receiving_audio_process = multiprocessing.Process(target=start_audio_receiver, args=(correspondent_ip, self.r,))
 
         if use_audio:
             receiving_audio_process.start()

@@ -99,7 +99,7 @@ app.on('ready', function(){
         backend.client.get("status", (err,val)=>{
             if(val=="call"){
                 mainwindow.loadURL(url.format({
-                    pathname: path.join(__dirname, 'call.html'),
+                    pathname: path.join(__dirname, 'on-call.html'),
                     protocol:'file:', 
                     slashes: true
                 }));

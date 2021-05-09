@@ -101,11 +101,12 @@ def video_stream(connection, cap, r: redis.Redis):
 
 
 class SendFrameThread(threading.Thread):
-    def __init__(self, thread_id, name, counter):
+    def __init__(self, thread_id, name, counter, r: redis.Redis):
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
         self.counter = counter
+        self.r = r
 
     def run(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
@@ -126,7 +127,7 @@ class SendFrameThread(threading.Thread):
             print('Video server : Connection from ' + str(address) + f' (connection number {i})')
 
             # todo global cap object?
-            new_thread = threading.Thread(target=video_stream, args=(connection, cap,))
+            new_thread = threading.Thread(target=video_stream, args=(connection, cap, self.r, ))
             new_thread.start()
             streaming_threads.append(new_thread)
 
