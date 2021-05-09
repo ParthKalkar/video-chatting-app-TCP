@@ -28,7 +28,7 @@
         <input type="text" placeholder="Enter fullname here" id="username"> 
     </label>
 
-    <button class="button-save" onclick="submit_username()">Save</button>
+    <button class="button-save" id="save_button">Save</button>
 
     <button class="button-vid">
             <img src="./Images/video-on.svg" alt="" id="vid-on-home" onclick="vidImage(this)">
@@ -59,8 +59,18 @@
 
     <img class="bkimage" src="./Images/Background.svg" alt="">
 
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="main.js"></script>
+    <!--<script src="main.js"></script>-->
+   <script type="text/javascript">
+    console.log("yooo");
+    // include the ipc module to communicate with main process.
+    var ipcRenderer = require('electron').ipcRenderer; 
+    //send the info to main process . we can pass any arguments as second param.
+    //let backend = require(path.join(__dirname, 'backend_api.js'));
+    document.getElementById('save_button').addEventListener('click', function(){
+    console.log("Done")
+    username = document.getElementById('username').value;
+    ipcRenderer.send("send_username", username);
+});
+    </script>
 </body>
 </html>

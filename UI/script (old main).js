@@ -5,6 +5,7 @@ function vidImage(element) {
 }
 
 function micImage(element) {
+    console.log("Not the correct file.")
     element.src = element.bln ? "./Images/Mic-On.svg" : "./Images/Mic-Off.svg";
     element.bln = !element.bln;  /* assigns opposite boolean value always */
 }

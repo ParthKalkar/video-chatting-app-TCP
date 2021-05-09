@@ -10,18 +10,22 @@ let mainwindow;
 let addWindow;
 
 
-
+console.log("Hello from before the app is ready")
 
 // Listen for the app to be ready
 app.on('ready', function(){
     // Create new window
     mainwindow = new BrowserWindow({
+        frame: true,
         webPreferences: {
         nodeIntegration: true,
+        webSecurity: false,
+    	plugins: true
       } 
     });
     mainwindow.maximize()
     mainwindow.removeMenu()
+    //mainWindow.webContents.openDevTools()
     // Load the first HTML file in the window
     mainwindow.loadURL(url.format({
         pathname: path.join(__dirname, 'home.html'),
@@ -34,7 +38,13 @@ app.on('ready', function(){
     mainwindow.on('closed', function(){
         backend.quit();
         app.quit();
-    })    
+    })
+});
+
+console.log("Hello after the app got ready")
+
+ipcMain.on("send_username", (event, arg)=>{
+    console.log(arg)
 });
 
 // Handle create add window
@@ -64,14 +74,16 @@ function vidImage(element) {
 }
 
 function micImage(element) {
+    console.log('Changed mic')
     element.src = element.bln ? "./Images/mic-on.svg" : "./Images/mic-off.svg";
     element.bln = !element.bln;  /* assigns opposite boolean value always */
 }
 
-function submit_username(){
+function sendUsername(element){
     let username = document.getElementById('username').value;
     console.log(username)
-    //backend.submit_username(username.value);
+    backend.submit_username(username.value);
+    console.log("Called!")
 }
 
 /*document.getElementById('username').addEventListener('click', function(){
