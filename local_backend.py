@@ -28,18 +28,48 @@ def online_list_listener(r: redis.Redis):
 
 def backend_server_redis():
     r = redis.Redis()
-    r.set("python_started", True)
+    r.set("status", "waiting_username")
+    r.set("use_video", "TRUE")
+    r.set("use_audio", "TRUE")
+    r.set("online_list", "")
+    r.set("incoming_status", "waiting_username")
+    r.set("outgoing_status", "waiting_username")
+    r.set("username", "")
+    r.set("correspondent_id", "")
+    r.set("correspondent_ip", "")
+    r.set("correspondent_name", "")
+    r.set("current_video_frame", "")
+    r.set("python_status", "ON")
 
     current_username = None
     online_list_listener_thread = threading.Thread(target=online_list_listener, args=(r,))
     while 1:
-        # Check username
-        username = r.get("username")
-        if username != current_username:
-            signup(username)
-            # todo start the call listener here
-            if not online_list_listener_thread.is_alive():
-                online_list_listener_thread.start()
+        # Check status first
+        status = r.get("status")
+        if status == "waiting_username":
+            # Check username
+            username = r.get("username")
+            if username != current_username:
+                signup(username)
+                go_online(username, get_my_private_ip())
+                current_username = username
+                # todo start the call listener here
+                if not online_list_listener_thread.is_alive():
+                    online_list_listener_thread.start()
+
+            r.set("status", "home")
+        elif status == "home":
+            print("jkm")
+            # todo check if I need to do anything here (maybe reset vars after a call)
+        elif status == "incoming":
+            incoming_status = r.get("incoming_status")
+            if incoming_status == "declined":
+                r.set("status", "home")
+            elif incoming_status == "accepted":
+                r.set("status", "call")
+        elif status == "calling":
+            id = r.get("correspondent_id")
+            # todo start the call making thread
 
         # Check for making a call
         make_call = r.get("make_call")
@@ -57,20 +87,5 @@ def backend_server_redis():
         # Sleep between polls
         time.sleep(0.001)
 
-
-def backend_server_socket():
-    # Front end socket creation
-    front_end = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
-    front_end.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    port = 12000
-    ip = socket.gethostbyname('localhost')
-    front_end.bind((ip, port))
-
-    front_end.listen(1)
-    front_end_conn, address = front_end.accept()
-
-    # This part is basically an FSA
-    while True:
-        front_end_conn.recv(1024)
 
 
