@@ -13,9 +13,9 @@ def start_audio_server():
     audio_server.join()
 
 
-def start_audio_receiver(correspondent_ip):
+def start_audio_receiver(correspondent_ip, r):
     t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3, correspondent_ip)
-    t4 = PlayAudioThread(4, "Play Audio", 4)
+    t4 = PlayAudioThread(4, "Play Audio", 4, r)
     t3.start()
     t4.start()
     t3.join()
@@ -48,7 +48,7 @@ class CallListeningThread(threading.Thread):
         # Here we wait for the user to pick up the call
 
         self.r.set("status", "incoming")
-        self.r.set("correspondent_ip", str(address[0]))
+        # self.r.set("correspondent_ip", str(address[0]))
 
         incoming_status = "ringing"
         while incoming_status != "accepted":
@@ -78,7 +78,7 @@ class CallListeningThread(threading.Thread):
         correspondent_ip = ip.decode('utf-8')
         print("Correspondent said their IP is " + correspondent_ip)
         # print("However their local IP is : ")
-
+        self.r.set("correspondent_ip", correspondent_ip);
         # send my ip
         connection.sendall(bytes(get_my_private_ip(), 'utf-8'))
 
@@ -87,12 +87,12 @@ class CallListeningThread(threading.Thread):
         print(f"From {address} : {msg.decode('utf-8')}")
 
         t1 = ReceiveFrameThread(1, "Receive frame", 1, correspondent_ip)
-        t2 = DisplayFrameThread(2, "Display frame", 2)
+        t2 = DisplayFrameThread(2, "Display frame", 2, self.r)
 
         t1.start()
         t2.start()
 
-        receiving_audio_process = multiprocessing.Process(target=start_audio_receiver, args=(correspondent_ip,))
+        receiving_audio_process = multiprocessing.Process(target=start_audio_receiver, args=(correspondent_ip,self.r,))
 
         if use_audio:
             receiving_audio_process.start()

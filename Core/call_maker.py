@@ -14,9 +14,9 @@ def start_audio_server():
     audio_server.join()
 
 
-def start_audio_receiver(correspondent_ip):
+def start_audio_receiver(correspondent_ip, r):
     t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3, correspondent_ip)
-    t4 = PlayAudioThread(4, "Play Audio", 4)
+    t4 = PlayAudioThread(4, "Play Audio", 4, r)
     t3.start()
     t4.start()
     t3.join()
@@ -95,12 +95,12 @@ class InitiateCallThread(threading.Thread):
         s.sendall(b"OK")
 
         t1 = ReceiveFrameThread(1, "Receive frame", 1, correspondent_ip)
-        t2 = DisplayFrameThread(2, "Display frame", 2)
+        t2 = DisplayFrameThread(2, "Display frame", 2, self.r)
 
         t1.start()
         t2.start()
 
-        receiving_audio_process = multiprocessing.Process(target=start_audio_receiver, args=(correspondent_ip,))
+        receiving_audio_process = multiprocessing.Process(target=start_audio_receiver, args=(correspondent_ip,self.r,))
 
         if use_audio:
             receiving_audio_process.start()

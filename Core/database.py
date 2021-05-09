@@ -49,4 +49,7 @@ def get_user_ip(name):
 
 
 def get_username_by_ip(ip):
-    return users.find_one({'ip': ip})['name']
+    user = users.find_one({'ip': ip})
+    if user is None:
+        return ""
+    return user['name']
