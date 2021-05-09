@@ -77,7 +77,7 @@ class InitiateCallThread(threading.Thread):
             self.r.set("calling_status", "declined")
             s.close()
             return
-
+        self.r.set("status", "call")
         s.sendall(bytes(my_ip, 'utf-8'))
 
         video_server = SendFrameThread(10, "Send Video", 10)

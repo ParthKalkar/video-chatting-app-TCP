@@ -94,6 +94,18 @@ app.on('ready', function(){
             }));
         }
     });
+
+    ipcMain.on("call_accepted_request", (event,data)=>{
+        backend.client.get("status", (err,val)=>{
+            if(val=="call"){
+                mainwindow.loadURL(url.format({
+                    pathname: path.join(__dirname, 'call.html'),
+                    protocol:'file:', 
+                    slashes: true
+                }));
+            }
+        })
+    })
     
 });
 
