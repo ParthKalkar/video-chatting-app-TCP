@@ -45,13 +45,56 @@ app.on('ready', function(){
     ipcMain.on("make_call", (event,id)=>{
         console.log("Making call to : " + id);
         backend.client.set("correspondent_id", id);
-        backend.client.set("status","calling");
+        backend.client.set("status","initiate_call");
         mainwindow.loadURL(url.format({
             pathname: path.join(__dirname, 'calling.html'),
             protocol:'file:', 
             slashes: true
         }));
     });
+
+    ipcMain.on("call_cancel", (event, arg)=>{
+        backend.client.set("calling_status","cancelled");
+        mainwindow.loadURL(url.format({
+            pathname: path.join(__dirname, 'home.html'),
+            protocol:'file:', 
+            slashes: true
+        }));
+        //backend.client.set("status", "home");
+    });
+
+    // listen for call
+    ipcMain.on("incoming_call_request", (event,arg)=>{
+        backend.client.get("status", (err,val)=>{
+            if (val == "incoming"){
+                mainwindow.loadURL(url.format({
+                    pathname: path.join(__dirname, 'receiving-call.html'),
+                    protocol:'file:', 
+                    slashes: true
+                }));
+            }
+        })
+    });
+
+    ipcMain.on("accept_call", (event,call_accepted)=>{
+        if(call_accepted){
+            backend.client.set("incoming_status", "accepted");
+            mainwindow.loadURL(url.format({
+                pathname: path.join(__dirname, 'on-call.html'),
+                protocol:'file:', 
+                slashes: true
+            }));
+        }
+        else{
+            backend.client.set("incoming_status", "declined");
+            mainwindow.loadURL(url.format({
+                pathname: path.join(__dirname, 'home.html'),
+                protocol:'file:', 
+                slashes: true
+            }));
+        }
+    });
+    
 });
 
 
@@ -90,6 +133,7 @@ ipcMain.on("online_list_request", (event, arg)=>{
     //console.log(online_list);
     
 });
+
 
 
 

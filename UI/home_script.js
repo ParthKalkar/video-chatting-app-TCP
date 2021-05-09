@@ -22,13 +22,16 @@ function micImage(element) {
 
 function sendUsername(element){
     let username = document.getElementById('username').value;
+
+    if(username=="") return;
+    
     ipcRenderer.send("send_username", username);
     console.log("Username submitted from Renderer!")
+    setInterval(()=>{
+        ipcRenderer.send('online_list_request',undefined)
+    },1000);  // the shorter the more likely it is to miss a click
 }
 
-setInterval(()=>{
-    ipcRenderer.send('online_list_request',undefined)
-},1000);  // the shorter the more likely it is to miss a click
 
 ipcRenderer.on('online_list',(event,arg)=>{
     let res = ""
@@ -51,3 +54,9 @@ function make_call(button){
     console.log("Calling id : " + id);
     ipcRenderer.send('make_call', id);
 }
+
+
+//listening for calls
+setInterval(()=>{
+    ipcRenderer.send("incoming_call_request", undefined);
+},200)

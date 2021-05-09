@@ -19,16 +19,16 @@
         </div>
 
 <!-- Person icon of the person calling -->
-        <img class="person-icon" src="./Images/Personal-account-icon.svg" alt="">
+        <img class="person-icon" src="./Images/Personal-Account-icon.svg" alt="">
 
 <!-- Three calling buttons -->
         <div class="calling-icons">
             <button class="receiving-buttons" id="accept-call-button">
-                <img class="accept-call" src="./Images/Accept-call.svg" alt="">
+                <img class="accept-call" src="./Images/Accept-call.svg" alt="" onclick="acceptCall()">
             </button>
 
             <button class="receiving-buttons" id="end-call-button">
-                <img class="end-call" src="./Images/End-Call.svg" alt="">
+                <img class="end-call" src="./Images/End-Call.svg" alt="" onclick="declineCall()">
             </button>
         </div>
 
@@ -39,5 +39,7 @@
 
 <!-- Background image -->
     <img class="bkimage" src="./Images/Background.svg" alt="">
+
+    <script src="receiving-call_script.js"></script>
 </body>
 </html>

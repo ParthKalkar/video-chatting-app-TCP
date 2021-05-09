@@ -72,8 +72,9 @@ class InitiateCallThread(threading.Thread):
 
         msg = s.recv(1024).decode('utf-8')
         print('Your correspondent said : ' + msg)
-
+        # todo kill this when we cancel the call
         if msg == "NOPE":
+            self.r.set("calling_status", "declined")
             s.close()
             return
 
