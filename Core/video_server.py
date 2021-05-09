@@ -3,6 +3,7 @@ import time
 import cv2
 import pickle
 from datetime import datetime
+import redis
 
 MAX_LATENCY = 0.09  # The maximum allowed latency in seconds
 
@@ -19,7 +20,7 @@ def resize_image(src, ratio):
     return cv2.resize(src, new_size)
 
 
-def video_stream(connection, cap):
+def video_stream(connection, cap, r: redis.Redis):
     # todo add the appropriate locks (for cap) (if using one cap object passed to function)
     scaling_ratio = 0.6
     # cap = cv2.VideoCapture(0)
@@ -39,6 +40,9 @@ def video_stream(connection, cap):
     # todo break the following into functions for readability
 
     while True:
+        status = r.get("status").decode('utf-8')
+        if status != "call":
+            break
         if frame_count == 25:
             connection.sendall(pickle.dumps(datetime.now()))
             print("Video server : Sent own time to client.")

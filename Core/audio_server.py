@@ -1,5 +1,6 @@
 from root import *
 import pyaudio
+import redis
 
 
 # Audio format
@@ -15,7 +16,7 @@ audio_stream_lock = threading.Lock()
 parallel_connections = 10
 
 
-def audio_stream(connection, stream):
+def audio_stream(connection, stream, r: redis.Redis):
     while True:
         try:
             audio_stream_lock.acquire()
@@ -26,13 +27,18 @@ def audio_stream(connection, stream):
             break
         connection.sendall(data)
 
+        status = r.get("status").decode("utf-8")
+        if status != "call":
+            break
+
 
 class SendAudioFrameThread(threading.Thread):
-    def __init__(self, thread_id, name, counter):
+    def __init__(self, thread_id, name, counter, r):
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
         self.counter = counter
+        self.r = r
 
     def run(self) -> None:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
@@ -63,7 +69,7 @@ class SendAudioFrameThread(threading.Thread):
         for i in range(parallel_connections):
             connection, address = s.accept()
             print('Audio server : Connection for audio from ' + str(address))
-            new_thread = threading.Thread(target=audio_stream, args=(connection, stream,))
+            new_thread = threading.Thread(target=audio_stream, args=(connection, stream, self.r))
             new_thread.start()
             threads.append(new_thread)
 

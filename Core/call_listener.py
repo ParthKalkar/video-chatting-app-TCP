@@ -7,8 +7,8 @@ import redis
 
 
 # These functions will run in separate processes
-def start_audio_server():
-    audio_server = SendAudioFrameThread(11, "Send Video", 11)
+def start_audio_server(r):
+    audio_server = SendAudioFrameThread(11, "Send Video", 11, r)
     audio_server.start()
     audio_server.join()
 
@@ -66,7 +66,7 @@ class CallListeningThread(threading.Thread):
         video_server = SendFrameThread(10, "Send Video", 10)
         video_server.start()
 
-        audio_server_process = multiprocessing.Process(target=start_audio_server)
+        audio_server_process = multiprocessing.Process(target=start_audio_server, args=(self.r,))
         if use_audio:
             print("Call listener : AUDIO ENABLED.")
             audio_server_process.start()

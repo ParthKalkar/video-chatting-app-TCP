@@ -43,4 +43,4 @@ function cancelCall() {
 //remind main to check if the call is accepted
 setInterval(()=>{
     ipcRenderer.send("call_accepted_request",undefined);
-})
+}, 300);
