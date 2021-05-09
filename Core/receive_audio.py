@@ -66,11 +66,12 @@ class ReceiveAudioFrameThread(threading.Thread):
 
 
 class PlayAudioThread(threading.Thread):
-    def __init__(self, thread_id, name, counter):
+    def __init__(self, thread_id, name, counter, r: redis.Redis):
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
         self.counter = counter
+        self.r = r
 
     def run(self) -> None:
         p = pyaudio.PyAudio()  # todo fix the bug with this shit (only happens when not using localhost)
@@ -86,6 +87,17 @@ class PlayAudioThread(threading.Thread):
         last_chunk = None
         while True:
             global audio_buffer
+
+            # In case audio is off
+            show_audio = self.r.get("show_audio").decode("utf-8")
+            if show_audio == "FALSE":
+                stream.write(SILENCE)
+                audio_buffer_lock.acquire()
+                audio_buffer = []
+                audio_buffer_lock.release()
+                time.sleep(CHUNK / RATE * 0.5)
+                continue
+
             free = stream.get_write_available()
             chunks = int(math.ceil(free/CHUNK))
             if len(audio_buffer) >= chunks*CHUNK:

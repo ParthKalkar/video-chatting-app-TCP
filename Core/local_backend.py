@@ -63,9 +63,9 @@ def backend_server_redis():
                     online_list_listener_thread.start()
 
             r.set("status", "home")
-       # elif status == "home":
-            # print("jkm")
-            # todo check if I need to do anything here (maybe reset vars after a call)
+        # elif status == "home":
+        # print("jkm")
+        # todo check if I need to do anything here (maybe reset vars after a call)
         elif status == "incoming":
             incoming_status = r.get("incoming_status")
             if incoming_status == "declined":
@@ -92,6 +92,3 @@ def backend_server_redis():
 
         # Sleep between polls
         time.sleep(0.1)
-
-
-

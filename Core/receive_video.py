@@ -3,6 +3,7 @@ import cv2
 import time
 import pickle
 from datetime import datetime
+import redis
 
 video_buffer = [b""]
 video_buffer_lock = []
@@ -77,7 +78,7 @@ def receive_frames(s, connection_id):
             # print("Video receiver : Received server time.")
             delta = datetime.now() - sending_time
             latency = abs(delta.total_seconds())  # todo check that the negative values are not actually a problem
-            frame_latency = latency * (frame_size[connection_id] / 4096)
+            # frame_latency = latency * (frame_size[connection_id] / 4096)
             # print("Video receiver : Current packet latency : " + str(latency))
             # print("Video receiver : Estimated video latency : " + str(frame_latency))
 
@@ -106,7 +107,7 @@ def receive_frames(s, connection_id):
         try:
             video_buffer[connection_id] += packet
         except IndexError as e:
-            print("Exceeeeeption" + str(e))
+            print("Exception" + str(e))
             print("ID : " + str(connection_id))
             print("Video buffer size : " + str(len(video_buffer)))
 
@@ -144,11 +145,12 @@ class ReceiveFrameThread(threading.Thread):
 
 
 class DisplayFrameThread(threading.Thread):
-    def __init__(self, thread_id, name, counter):
+    def __init__(self, thread_id, name, counter, r: redis.Redis):
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
         self.counter = counter
+        self.r = r
 
     def run(self) -> None:
         print("Displaying frame thread started")
@@ -158,6 +160,14 @@ class DisplayFrameThread(threading.Thread):
             time.sleep(0.05)
 
         while 1:
+            status = self.r.get("status").decode('utf-8')
+            if status == "quit":
+                break
+
+            show_video = self.r.get("show_video").decode("utf-8")
+            if show_video == "FALSE":
+                # todo make this display a profile image
+                continue
             for i in range(parallel_connections):
                 global video_buffer
                 global frame_size
@@ -165,12 +175,12 @@ class DisplayFrameThread(threading.Thread):
                     continue
                 video_buffer_lock[i].acquire()
                 start = video_buffer[i][:len(bytes("NEW_FRAME_SIZE", 'utf-8'))]
-                video_buffer_lock[i].release()  # todo check that I don't need a lock here
+                video_buffer_lock[i].release()
 
                 valid_string = True
                 try:
                     start = start.decode('utf-8')
-                except UnicodeDecodeError as e:
+                except UnicodeDecodeError:
                     valid_string = False
 
                 if valid_string and start == "NEW_FRAME_SIZE":
