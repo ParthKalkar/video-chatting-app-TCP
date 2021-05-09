@@ -24,8 +24,25 @@ The Python processes are mainly:
 def online_list_listener(r: redis.Redis):
     print("Online list listener started.")
     while True:
-        r.set("online_list", json.dumps(list(get_online_users())))
-        time.sleep(0.05)
+        status = r.get("status").decode("utf-8")
+        if status != 'home':
+            time.sleep(0.5)
+            continue
+
+        online_list = get_online_users()
+        res = []
+        count = 0
+        for i in online_list:
+            entry = {
+                'id': count,
+                'name': i['name'],
+                'ip': i['ip']
+            }
+            res.append(entry)
+            count += 1
+        # print(res)
+        r.set("online_list", json.dumps(res))
+        time.sleep(0.2)
 
 
 def backend_server_redis():
@@ -35,7 +52,7 @@ def backend_server_redis():
     r.set("use_audio", "TRUE")
     r.set("show_video", "TRUE")
     r.set("show_audio", "TRUE")
-    r.set("online_list", "")
+    r.set("online_list", "[]")
     r.set("incoming_status", "waiting_username")
     r.set("outgoing_status", "waiting_username")
     r.set("username", "")
@@ -50,17 +67,17 @@ def backend_server_redis():
     while 1:
         # Check status first
         status = r.get("status").decode('utf-8')
-        if status == "waiting_username":
+        # if status == "waiting_username":
             # Check username
-            username = r.get("username").decode('utf-8')
-            if username != current_username:
-                print(f'Username : {username}')
-                signup(username)
-                go_online(username, get_my_private_ip())
-                current_username = username
-                # todo start the call listener here
-                if not online_list_listener_thread.is_alive():
-                    online_list_listener_thread.start()
+        username = r.get("username").decode('utf-8')
+        if username != current_username:
+            print(f'Username in Python: {username}')
+            signup(username)
+            go_online(username, get_my_private_ip())
+            current_username = username
+            # todo start the call listener here
+            if not online_list_listener_thread.is_alive():
+                online_list_listener_thread.start()
 
             r.set("status", "home")
         # elif status == "home":
@@ -88,6 +105,7 @@ def backend_server_redis():
         status = r.get("status").decode('utf-8')
         # print(status)
         if status == 'quit':
+            go_offline(username)
             break
 
         # Sleep between polls

@@ -1,11 +1,12 @@
 const redis = require("redis");
 const client = redis.createClient();
 
+exports.client = client;
 
 //initiate call
 exports.make_call = (id) => {
     client.set("make_call","TRUE");
-    client.set("correspondent_id",id)
+    client.set("correspondent_id",id);
 }
 
 // toggle video
@@ -35,7 +36,11 @@ exports.submit_username = (username) => {
 
 //get the list of online people
 exports.get_online = () => {
-    return client.get("online_list", (err,val)=> val);
+    var res = client.get("online_list", (err,val)=> {
+        console.log(val);
+        return JSON.parse(val);
+    });
+    
 }
 
 //check if there is an incoming call

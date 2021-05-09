@@ -16,16 +16,18 @@ console.log("Hello from before the app is ready")
 app.on('ready', function(){
     // Create new window
     mainwindow = new BrowserWindow({
-        frame: true,
+        //frame: true,
         webPreferences: {
         nodeIntegration: true,
-        webSecurity: false,
-    	plugins: true
+        contextIsolation: false
+        //preload: path.join(__dirname, 'home_script.js')
+        //webSecurity: false,
+    	//plugins: true
       } 
     });
     mainwindow.maximize()
-    mainwindow.removeMenu()
-    //mainWindow.webContents.openDevTools()
+    //mainwindow.removeMenu()
+    
     // Load the first HTML file in the window
     mainwindow.loadURL(url.format({
         pathname: path.join(__dirname, 'home.html'),
@@ -33,7 +35,7 @@ app.on('ready', function(){
         slashes: true
 }));
 
-
+    //mainWindow.webContents.openDevTools()
     // Quit app when closed
     mainwindow.on('closed', function(){
         backend.quit();
@@ -41,11 +43,56 @@ app.on('ready', function(){
     })
 });
 
-console.log("Hello after the app got ready")
+
+// Listeners for IPC from Renderer
+
 
 ipcMain.on("send_username", (event, arg)=>{
-    console.log(arg)
+    console.log("send_username ! "+ arg)
+    backend.submit_username(arg)
 });
+
+ipcMain.on("toggle_mic", (event, arg)=>{
+    if(arg){
+        backend.audio_on()
+    }
+    else {
+        backend.audio_off()
+    }
+});
+
+ipcMain.on("toggle_vid", (event, arg)=>{
+    if(arg){
+        backend.video_on()
+    }
+    else {
+        backend.video_off()
+    }
+});
+
+ipcMain.on("online_list_request", (event, arg)=>{
+    var res = backend.client.get("online_list", (err,val)=> {
+       // console.log(val);
+        console.log(val);
+        console.log(val.toString(2));
+        let online_list = JSON.parse(val.toString(2));
+        event.sender.send("online_list",online_list);
+    });
+    
+    //console.log(online_list);
+    
+});
+
+
+console.log("Hello after the app got ready")
+
+
+
+
+
+
+
+
 
 // Handle create add window
 function createAddWindow(){
@@ -68,39 +115,6 @@ function createAddWindow(){
 
 }
 
-function vidImage(element) {
-    element.src = element.bln ? "./Images/video-on.svg" : "./Images/video-off.svg";
-    element.bln = !element.bln;  /* assigns opposite boolean value always */
-}
 
-function micImage(element) {
-    console.log('Changed mic')
-    element.src = element.bln ? "./Images/mic-on.svg" : "./Images/mic-off.svg";
-    element.bln = !element.bln;  /* assigns opposite boolean value always */
-}
 
-function sendUsername(element){
-    let username = document.getElementById('username').value;
-    console.log(username)
-    backend.submit_username(username.value);
-    console.log("Called!")
-}
 
-/*document.getElementById('username').addEventListener('click', function(){
-    let username = document.getElementById('username').value;
-    console.log(username)
-    backend.submit_username(username.value);
-})*/
-
-// For now we have problems with pyshell
-
-/*let pyshell = new PythonShell('../Core/main.py')
-console.log("Wiiiiouw")
-    pyshell.on("message", function(message) {
-        console.log(message)
-      });
-
-pyshell.end(function (err) {
-        if (err) throw err;
-        console.log('finished');
-  });*/

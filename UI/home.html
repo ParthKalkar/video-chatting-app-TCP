@@ -28,7 +28,7 @@
         <input type="text" placeholder="Enter fullname here" id="username"> 
     </label>
 
-    <button class="button-save" id="save_button">Save</button>
+    <button class="button-save" id="save_button" onclick="sendUsername(this)">Save</button>
 
     <button class="button-vid">
             <img src="./Images/video-on.svg" alt="" id="vid-on-home" onclick="vidImage(this)">
@@ -43,16 +43,8 @@
 
     <div class="callernames-wrapper">
         <div class="callernames">
-            <ol class="line-separated" type = "1">
-                <li> item 1 <button class="makecall-home">
-                    <img class="call-button-home"  src="./Images/Make-call.svg" alt=""></button>
-                </li>
-                <li>item 2 <button class="makecall-home">
-                    <img class="call-button-home" src="./Images/Make-call.svg" alt=""></button>
-                </li>
-                <li>item 3 <button class="makecall-home">
-                    <img class="call-button-home" src="./Images/Make-call.svg" alt=""></button>
-                </li>
+            <ol class="line-separated" type = "1" id="online_list">
+                
             </ol>   
         </div>
     </div>
@@ -60,17 +52,6 @@
     <img class="bkimage" src="./Images/Background.svg" alt="">
 
     <!--<script src="main.js"></script>-->
-   <script type="text/javascript">
-    console.log("yooo");
-    // include the ipc module to communicate with main process.
-    var ipcRenderer = require('electron').ipcRenderer; 
-    //send the info to main process . we can pass any arguments as second param.
-    //let backend = require(path.join(__dirname, 'backend_api.js'));
-    document.getElementById('save_button').addEventListener('click', function(){
-    console.log("Done")
-    username = document.getElementById('username').value;
-    ipcRenderer.send("send_username", username);
-});
-    </script>
+   <script src="home_script.js"></script>
 </body>
 </html>
