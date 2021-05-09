@@ -27,9 +27,9 @@ def audio_stream(connection, stream, r: redis.Redis):
             break
         connection.sendall(data)
 
-        status = r.get("status").decode("utf-8")
-        if status != "call":
-            break
+        # status = r.get("status").decode("utf-8")
+        # if status != "call":
+        #     break
 
 
 class SendAudioFrameThread(threading.Thread):

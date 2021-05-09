@@ -40,9 +40,9 @@ def video_stream(connection, cap, r: redis.Redis):
     # todo break the following into functions for readability
 
     while True:
-        status = r.get("status").decode('utf-8')
-        if status != "call":
-            break
+        # status = r.get("status").decode('utf-8')
+        # if status != "call":
+        #     break
         if frame_count == 25:
             connection.sendall(pickle.dumps(datetime.now()))
             print("Video server : Sent own time to client.")
