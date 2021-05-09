@@ -33,8 +33,14 @@ export const submit_username = (username) => {
 }
 
 //get the list of online people
+export const get_online = () => {
+    return client.get("online_list", (err,val)=> val);
+}
 
 //check if there is an incoming call
+export const incoming_call = () => {
+    return client.get("incoming_call", (err,val)=>val) == "TRUE";
+}
 
 //check caller info
 
