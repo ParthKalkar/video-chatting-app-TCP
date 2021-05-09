@@ -1,4 +1,5 @@
 NetworksProject/node_modules
+UI/node_modules
 venv
 .idea/
 __pycache__/

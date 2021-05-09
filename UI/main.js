@@ -15,7 +15,7 @@ app.on('ready', function(){
     mainwindow.removeMenu()
     // Load the first HTML file in the window
     mainwindow.loadURL(url.format({
-        pathname: path.join(__dirname, '../Frontend/home.html'),
+        pathname: path.join(__dirname, 'home.html'),
         protocol:'file:', 
         slashes: true
 }));
@@ -51,6 +51,16 @@ function createAddWindow(){
         addWindow = null;
     });
 
+}
+
+function vidImage(element) {
+    element.src = element.bln ? "./Images/video-on.svg" : "./Images/video-off.svg";
+    element.bln = !element.bln;  /* assigns opposite boolean value always */
+}
+
+function micImage(element) {
+    element.src = element.bln ? "./Images/mic-on.svg" : "./Images/mic-off.svg";
+    element.bln = !element.bln;  /* assigns opposite boolean value always */
 }
 
 // Create menu template
