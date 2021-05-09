@@ -9,6 +9,7 @@ Implementation of a video calling application using the TCP protocol.
 ## How to run
 1. If you're running the code for the first time, run *setup.sh*.
 2. To run the code, run *run.sh*.
+3. If the app crashes, it is recommended to run *clean.sh* before restarting the app.
 
 ## Current accomplishments
 - [x] Have a reliable video call over TCP, CLI interface.
