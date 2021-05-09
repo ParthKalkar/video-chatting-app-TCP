@@ -49,6 +49,16 @@ footer {
     color: #E5E5E5;
     font-size: 18px;
 }
+
+.wrapper-tittle{
+    position:absolute;
+    top: 16%;
+    z-index: 1000;
+    color: #E5E5E5;
+    font-size:18px;
+    margin-left: 700px;
+}
+
 label{
     position: absolute;
     top: 25%;
@@ -80,42 +90,83 @@ input{
     cursor: pointer;
 }
 
+.button-save:hover{
+    border: 2px solid rgb(255, 255, 255);
+}
+
 .button-vid{
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 1000;
     cursor: pointer;
     background-color: none;
     border: none;
     top: 35%;
+    margin-left: 95px;
     color: #E5E5E5;
 }
 
 .button-mic{
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     left: 90px;
     z-index: 1000;
     cursor: pointer;
-    background-color: none;
+    background-color:none;
     border: none;
-    top: 35%;
+    top: 25.5%;
+    margin-left: 150px;
     color: #E5E5E5;
 }
 
+.button-micon-text, .button-vidon-text{
+    font-size: 17px;
+}
 .callernames-wrapper{
     position:relative;
-    top: 7%;
+    top: 4%;
     left:700px;
     z-index: 1000;
-    width: 400px;
-    height: 450px;
+    width: 450px;
+    height: 430px;
     background: #E5E5E5;
     border-radius: 10px;
     overflow: hidden;
     overflow-y: scroll;
-    padding: 25px;
+    padding-left: 40px;
+    padding-right: 40px;
 }
-.callernames{
-    background: none;
+
+ol.line-separated
+{
+    background-color: rgb(189, 189, 196);
+    margin: auto;
+}
+ol.line-separated li
+{
+    background-color:#E5E5E5;
+    margin: 1px 0 0 0;
+    padding: 1px;
+    text-align: center;
+}
+
+.makecall-home{
+    background: #E5E5E5;
+    border: none;
+    cursor: pointer;
+    margin-left: 210px;
+    border-radius: 30px;
+    margin-top: 10px ;
+}
+
+
+.call-button-home{
+    border-radius: 10px;
+    width: 70%;
 }
 
 
