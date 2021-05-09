@@ -60,5 +60,5 @@ def control_client(correspondent_ip, r: redis.Redis):
             break
 
         time.sleep(0.05)
-        
+
     s.close()

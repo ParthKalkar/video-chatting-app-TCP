@@ -4,6 +4,7 @@ from audio_server import *
 from video_server import *
 from database import *
 import multiprocessing
+import redis
 
 
 # These functions will run in separate processes
@@ -23,49 +24,58 @@ def start_audio_receiver(correspondent_ip):
 
 
 class InitiateCallThread(threading.Thread):
-    def __init__(self, threadID, name, counter):
+    def __init__(self, thread_id, name, counter, ip, r: redis.Redis):
         threading.Thread.__init__(self)
-        self.threadID = threadID
+        self.threadID = thread_id
         self.name = name
         self.counter = counter
+        self.ip = ip
+        self.r = r
 
     def run(self) -> None:
         my_ip = get_my_private_ip()
-        online_users = get_online_users()
-        print("You can call someone either by choosing their number in the list below")
-        if online_users is None:
-            print("Looks like no one is online right now, go and talk to people IRL instead.")
-            return
 
-        online_users = list(online_users)
-        for i in range(len(online_users)):
-            print(str(i+1) + " - " + str(online_users[i]['name']))
+        # OLD CLI WAY OF STARTING CALL
 
-        index = int(input("Enter the number of the user you wanna call : "))
-
-        ip = online_users[index-1]['ip']
-
-        print("Initiating a call with " + ip)
+        # online_users = get_online_users()
+        # print("You can call someone either by choosing their number in the list below")
+        # if online_users is None:
+        #     print("Looks like no one is online right now, go and talk to people IRL instead.")
+        #     return
+        #
+        # online_users = list(online_users)
+        # for i in range(len(online_users)):
+        #     print(str(i+1) + " - " + str(online_users[i]['name']))
+        #
+        # index = int(input("Enter the number of the user you wanna call : "))
+        #
+        # ip = online_users[index-1]['ip']
+        #
+        # print("Initiating a call with " + ip)
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
         port = 12344
-        s.connect((ip, port))
+        s.connect((self.ip, port))
 
         print('Connection established to make the call.')
 
-        choice = -1
-        while 1:
-            choice = input("Do you wanna use audio during the call? (y/n) : ")
-            if choice == 'y' or choice == 'n':
-                break
-            else:
-                print("Invalid input /!\\ Try again please.")
+        # choice = -1
+        # while 1:
+        #     choice = input("Do you wanna use audio during the call? (y/n) : ")
+        #     if choice == 'y' or choice == 'n':
+        #         break
+        #     else:
+        #         print("Invalid input /!\\ Try again please.")
 
-        use_audio = (0, 1)[choice == 'y']
+        use_audio = True
         s.sendall((b"Call", b"Call NO AUDIO")[not use_audio])
 
-        msg = s.recv(1024)
-        print('Your correspondent said : ' + msg.decode('utf-8'))
+        msg = s.recv(1024).decode('utf-8')
+        print('Your correspondent said : ' + msg)
+
+        if msg == "NOPE":
+            s.close()
+            return
 
         s.sendall(bytes(my_ip, 'utf-8'))
 

@@ -3,6 +3,7 @@ from call_listener import *
 from call_maker import *
 from multiprocessing import Process, Pipe
 import subprocess
+from local_backend import *
 
 # Logging
 # todo elaborate the logging and actually use it
@@ -29,8 +30,11 @@ environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 environ["QT_SCREEN_SCALE_FACTORS"] = "1"
 environ["QT_SCALE_FACTOR"] = "1"
 
-# This part is a testing ground for processes and pipes
+# GUI part
+backend_server_redis()
 
+
+# This part is a testing ground for processes and pipes
 
 def process_test(pipe: Pipe):
     msg = pipe.recv()

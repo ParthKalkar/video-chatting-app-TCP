@@ -1,6 +1,7 @@
 from root import *
 import pyaudio
 import time
+import redis
 
 
 # Audio info

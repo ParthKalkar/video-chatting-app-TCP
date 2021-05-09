@@ -3,6 +3,7 @@ from receive_audio import *
 from audio_server import *
 from video_server import *
 import multiprocessing
+import redis
 
 
 # These functions will run in separate processes
@@ -22,11 +23,12 @@ def start_audio_receiver(correspondent_ip):
 
 
 class CallListeningThread(threading.Thread):
-    def __init__(self, thread_id, name, counter):
+    def __init__(self, thread_id, name, counter, r: redis.Redis):
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
         self.counter = counter
+        self.r = r
 
     def run(self) -> None:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
@@ -42,6 +44,19 @@ class CallListeningThread(threading.Thread):
         use_audio = 1
         if "NO AUDIO" in msg:
             use_audio = 0
+
+        # Here we wait for the user to pick up the call
+
+        incoming_status = "ringing"
+        while incoming_status != "accepted":
+            time.sleep(0.05)
+            incoming_status = self.r.get("incoming_status")
+            if incoming_status == 'declined':
+                connection.sendall(b"NOPE")
+                connection.close()
+                s.close()
+                return
+
         connection.sendall(b"OK")
 
         # Start my own video and audio servers
@@ -86,4 +101,7 @@ class CallListeningThread(threading.Thread):
         if use_audio:
             receiving_audio_process.join()
             audio_server_process.join()
+
+        connection.close()
+        s.close()
         print("Exiting the call listening thread.")
