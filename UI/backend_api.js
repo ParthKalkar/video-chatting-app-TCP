@@ -3,43 +3,49 @@ const client = redis.createClient();
 
 
 //initiate call
-export const make_call = (id) => {
+exports.make_call = (id) => {
     client.set("make_call","TRUE");
     client.set("correspondent_id",id)
 }
 
 // toggle video
-export const video_on = () => {
+exports.video_on = () => {
     client.set("use_video","TRUE");
 }
 
-export const video_off = () => {
+exports.video_off = () => {
     client.set("use_video","FALSE");
 }
 
 
 // toggle audio
-export const audio_on = () => {
+exports.audio_on = () => {
     client.set("use_audio","TRUE");
 }
 
-export const audio_off = () => {
+exports.audio_off = () => {
     client.set("use_audio","FALSE");
 }
 
 //submit a username
-export const submit_username = (username) => {
+exports.submit_username = (username) => {
     client.set("username",username);
+    console.log("Username in JS : " + username);
 }
 
 //get the list of online people
-export const get_online = () => {
+exports.get_online = () => {
     return client.get("online_list", (err,val)=> val);
 }
 
 //check if there is an incoming call
-export const incoming_call = () => {
+exports.incoming_call = () => {
     return client.get("incoming_call", (err,val)=>val) == "TRUE";
+}
+
+exports.quit = () => {
+    client.set("status","quit");
+    console.log('changed status to quit!')
 }
 
 //check caller info

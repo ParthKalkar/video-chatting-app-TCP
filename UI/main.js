@@ -1,16 +1,25 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
+let {PythonShell} =  require('python-shell');
+let backend = require(path.join(__dirname, 'backend_api.js'))
 
 
-const{app, BrowserWindow, ipcMain} = electron;
+const{app, dialog, BrowserWindow, ipcMain} = electron;
 let mainwindow;
 let addWindow;
+
+
+
 
 // Listen for the app to be ready
 app.on('ready', function(){
     // Create new window
-    mainwindow = new BrowserWindow({});
+    mainwindow = new BrowserWindow({
+        webPreferences: {
+        nodeIntegration: true,
+      } 
+    });
     mainwindow.maximize()
     mainwindow.removeMenu()
     // Load the first HTML file in the window
@@ -23,13 +32,9 @@ app.on('ready', function(){
 
     // Quit app when closed
     mainwindow.on('closed', function(){
+        backend.quit();
         app.quit();
-    })
-
-    // Build menu from template
-    //const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-    // Insert Menu
-    //Menu.setApplicationMenu(mainMenu);
+    })    
 });
 
 // Handle create add window
@@ -63,70 +68,27 @@ function micImage(element) {
     element.bln = !element.bln;  /* assigns opposite boolean value always */
 }
 
-// Create menu template
-/*const mainMenuTemplate = [
-    {
-        label: 'Call',
-        submenu:[
-            {
-                label: 'Voice Call',
-                click(){
-                    createAddWindow();
-                }
-            },
-            {
-                label: 'Video Call'
-            }
-
-        ]
-    },
-    {
-        label: 'Message',
-        submenu:[
-            {
-                label: 'Text Message'
-            },
-            {
-                label: 'Voice Message'
-            }
-        ]
-    },
-    {
-        label: 'Setting',
-    },
-    {
-        label: 'Quit',
-        accelerator: process.platform == 'darwin' ? 'Command+Q' : 
-        'Ctrl+Q', 
-        click(){
-            app.quit();
-        }
-    }
-]
-
-// If mac, add empty object to menu
-if(process.platform == 'darwin'){
-    mainMenuTemplate.unshift({});
+function submit_username(){
+    let username = document.getElementById('username').value;
+    console.log(username)
+    //backend.submit_username(username.value);
 }
 
-// Add Developer tools item if not in production
-if(process.env.NODE_ENV !=='production'){
-    mainMenuTemplate.push({
-        label: 'Developer Tools',
-        
-        submenu:[
-            {
-            label: 'Toggle DevTools',
-            accelerator: process.platform == 'darwin' ? 'Command+I' : 
-            'Ctrl+I', 
-            click(item, focusedWindow){
-                focusedWindow.toggleDevTools();
+/*document.getElementById('username').addEventListener('click', function(){
+    let username = document.getElementById('username').value;
+    console.log(username)
+    backend.submit_username(username.value);
+})*/
 
-            }
-        },
-        {
-            role: 'reload'
-        }
-    ]
-    })
-}*/
+// For now we have problems with pyshell
+
+/*let pyshell = new PythonShell('../Core/main.py')
+console.log("Wiiiiouw")
+    pyshell.on("message", function(message) {
+        console.log(message)
+      });
+
+pyshell.end(function (err) {
+        if (err) throw err;
+        console.log('finished');
+  });*/

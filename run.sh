@@ -1,2 +1,5 @@
 cd UI
-npm start
+npm start&
+cd ..
+cd Core
+python3 main.py
