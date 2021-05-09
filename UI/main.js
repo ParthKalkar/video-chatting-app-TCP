@@ -41,6 +41,17 @@ app.on('ready', function(){
         backend.quit();
         app.quit();
     })
+
+    ipcMain.on("make_call", (event,id)=>{
+        console.log("Making call to : " + id);
+        backend.client.set("correspondent_id", id);
+        backend.client.set("status","calling");
+        mainwindow.loadURL(url.format({
+            pathname: path.join(__dirname, 'calling.html'),
+            protocol:'file:', 
+            slashes: true
+        }));
+    });
 });
 
 
@@ -72,9 +83,6 @@ ipcMain.on("toggle_vid", (event, arg)=>{
 
 ipcMain.on("online_list_request", (event, arg)=>{
     var res = backend.client.get("online_list", (err,val)=> {
-       // console.log(val);
-        console.log(val);
-        console.log(val.toString(2));
         let online_list = JSON.parse(val.toString(2));
         event.sender.send("online_list",online_list);
     });
@@ -82,6 +90,8 @@ ipcMain.on("online_list_request", (event, arg)=>{
     //console.log(online_list);
     
 });
+
+
 
 
 console.log("Hello after the app got ready")

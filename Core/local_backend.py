@@ -25,6 +25,9 @@ def online_list_listener(r: redis.Redis):
     print("Online list listener started.")
     while True:
         status = r.get("status").decode("utf-8")
+        if status == 'quit':
+            r.set("online_list", "[]")
+            break
         if status != 'home':
             time.sleep(0.5)
             continue

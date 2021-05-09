@@ -28,15 +28,15 @@ function sendUsername(element){
 
 setInterval(()=>{
     ipcRenderer.send('online_list_request',undefined)
-},300);
+},1000);  // the shorter the more likely it is to miss a click
 
 ipcRenderer.on('online_list',(event,arg)=>{
     let res = ""
     for(var i=0;i<arg.length;i++)
     {
         var name = arg[i]['name'];
-        console.log(name);
-        res += `<li>${name}<button class="makecall-home">
+        //console.log(name);
+        res += `<li>${name}<button class="makecall-home" onclick="make_call(this)" id="${i}">
         <img class="call-button-home"  src="./Images/Make-call.svg" alt=""></button></li>`
     }
     if(res==''){
@@ -45,3 +45,9 @@ ipcRenderer.on('online_list',(event,arg)=>{
     var ls = document.getElementById("online_list");
     ls.innerHTML = res;
 });
+
+function make_call(button){
+    var id = button.id;
+    console.log("Calling id : " + id);
+    ipcRenderer.send('make_call', id);
+}
