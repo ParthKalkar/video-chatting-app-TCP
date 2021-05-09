@@ -15,3 +15,12 @@ function acceptCall(){
 function declineCall(){
     ipcRenderer.send("accept_call", false);
 }
+
+setInterval(()=>{
+    ipcRenderer.send("correspondent_name_request", undefined);
+}, 700);
+
+ipcRenderer.on("correspondent_name", (event,arg)=>{
+    var title = document.getElementById('call_title');
+    title.innerHTML= `Receiving call from ${arg} ...`;
+});

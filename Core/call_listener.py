@@ -48,6 +48,7 @@ class CallListeningThread(threading.Thread):
         # Here we wait for the user to pick up the call
 
         self.r.set("status", "incoming")
+        self.r.set("correspondent_ip", str(address[0]))
 
         incoming_status = "ringing"
         while incoming_status != "accepted":

@@ -109,6 +109,12 @@ def backend_server_redis():
             # todo check if I need to do anything here (maybe reset vars after a call)
 
         elif status == "incoming":
+
+            ip = r.get("correspondent_ip")
+            if ip != "":
+                name = get_username_by_ip(ip)
+                r.set("correspondent_name", name)
+                
             incoming_status = r.get("incoming_status")
             if incoming_status == "declined":
                 # We should restart the call listener because it quits when we decline.

@@ -46,3 +46,7 @@ def go_offline(name):
 
 def get_user_ip(name):
     return users.find_one({'name': name})['ip']
+
+
+def get_username_by_ip(ip):
+    return users.find_one({'ip': ip})['name']

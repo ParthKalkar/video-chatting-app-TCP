@@ -12,6 +12,15 @@ if (window.module) module = window.module;
 var cam = document.getElementById('vid-on-calling');
 var cam = document.getElementById('mic-on-calling'); // will come back here later
 
+setInterval(()=>{
+    ipcRenderer.send("correspondent_name_request", undefined);
+}, 700);
+
+ipcRenderer.on("correspondent_name", (event,arg)=>{
+    var title = document.getElementById('call_title');
+    title.innerHTML= `Calling ${arg} ...`;
+});
+
 //toggling video and audio
 function vidImage(element) {
     element.src = element.bln ? "./Images/video-on.svg" : "./Images/video-off.svg";

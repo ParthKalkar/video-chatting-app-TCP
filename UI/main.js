@@ -134,7 +134,12 @@ ipcMain.on("online_list_request", (event, arg)=>{
     
 });
 
-
+// returns the caller's name
+ipcMain.on("correspondent_name_request", (event,arg)=>{
+    backend.client.get("correspondent_name", (err,val)=>{
+        event.sender.send("correspondent_name", val);
+    })
+})
 
 
 
