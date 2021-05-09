@@ -1,0 +1,2 @@
+cd UI
+npm start
