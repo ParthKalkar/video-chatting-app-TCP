@@ -13,7 +13,7 @@ app.on('ready', function(){
     mainwindow = new BrowserWindow({});
     // Load the first HTML file in the window
     mainwindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'screen1.html'),
+        pathname: path.join(__dirname, '../Frontend/home.html'),
         protocol:'file:', 
         slashes: true
 }));
