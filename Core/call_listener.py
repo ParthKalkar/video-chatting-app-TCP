@@ -53,7 +53,7 @@ class CallListeningThread(threading.Thread):
         incoming_status = "ringing"
         while incoming_status != "accepted":
             time.sleep(0.05)
-            incoming_status = self.r.get("incoming_status")
+            incoming_status = self.r.get("incoming_status").decode('utf-8')
             if incoming_status == 'declined':
                 connection.sendall(b"NOPE")
                 connection.close()
@@ -78,7 +78,7 @@ class CallListeningThread(threading.Thread):
         correspondent_ip = ip.decode('utf-8')
         print("Correspondent said their IP is " + correspondent_ip)
         # print("However their local IP is : ")
-        self.r.set("correspondent_ip", correspondent_ip);
+        self.r.set("correspondent_ip", correspondent_ip)
         # send my ip
         connection.sendall(bytes(get_my_private_ip(), 'utf-8'))
 
