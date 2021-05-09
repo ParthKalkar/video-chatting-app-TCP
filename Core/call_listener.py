@@ -22,6 +22,15 @@ def start_audio_receiver(correspondent_ip, r):
     t4.join()
 
 
+# This is used to kill the call listener
+def kill_listener():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP socket
+    port = 12344
+    s.connect((socket.gethostbyname('localhost'), port))
+    s.sendall(b"BYE")
+    s.close()
+
+
 class CallListeningThread(threading.Thread):
     def __init__(self, thread_id, name, counter, r: redis.Redis):
         threading.Thread.__init__(self)
@@ -41,6 +50,13 @@ class CallListeningThread(threading.Thread):
 
         msg = connection.recv(1024).decode('utf-8')
         print(f"From {address} : {msg}")
+
+        # Close the socket and quit
+        if msg == "BYE":
+            s.shutdown(socket.SHUT_RDWR)
+            s.close()
+            return
+
         use_audio = 1
         if "NO AUDIO" in msg:
             use_audio = 0
@@ -106,5 +122,6 @@ class CallListeningThread(threading.Thread):
             audio_server_process.join()
 
         connection.close()
+        s.shutdown(socket.SHUT_RDWR)
         s.close()
         print("Exiting the call listening thread.")

@@ -79,5 +79,6 @@ class SendAudioFrameThread(threading.Thread):
         stream.stop_stream()
         stream.close()
         p.terminate()
+        s.shutdown(socket.SHUT_RDWR)
         s.close()
         print("Exiting audio server.")

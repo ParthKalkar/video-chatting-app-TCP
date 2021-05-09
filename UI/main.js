@@ -105,6 +105,16 @@ app.on('ready', function(){
                 }));
             }
         })
+    });
+
+    ipcMain.on("call_finish", (event,data)=>{
+        backend.client.set("call_status","finished");
+        backend.client.set("status", 'home'); //not sure of this
+        mainwindow.loadURL(url.format({
+            pathname: path.join(__dirname, 'home.html'),
+            protocol:'file:', 
+            slashes: true
+        }));
     })
     
 });
@@ -150,6 +160,18 @@ ipcMain.on("online_list_request", (event, arg)=>{
 ipcMain.on("correspondent_name_request", (event,arg)=>{
     backend.client.get("correspondent_name", (err,val)=>{
         event.sender.send("correspondent_name", val);
+    })
+})
+
+ipcMain.on('use_video_request', (event,data)=>{
+    backend.client.get('use_video', (err,val)=>{
+        event.sender.send('use_video', val=="TRUE");
+    })
+})
+
+ipcMain.on('use_audio_request', (event,data)=>{
+    backend.client.get('use_audio', (err,val)=>{
+        event.sender.send('use_audio', val=="TRUE");
     })
 })
 

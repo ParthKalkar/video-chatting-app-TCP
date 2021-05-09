@@ -28,6 +28,7 @@ def control_server(r: redis.Redis):
             break
 
         time.sleep(0.1)
+    s.shutdown(socket.SHUT_RDWR)
     s.close()
 
 

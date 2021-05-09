@@ -166,6 +166,7 @@ def backend_server_redis():
         # print(status)
         if status == 'quit':
             go_offline(current_username)
+            kill_listener()
             break
 
         # Sleep between polls

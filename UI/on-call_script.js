@@ -7,10 +7,11 @@ const ipcRenderer = require('electron').ipcRenderer;
 
 if (window.module) module = window.module;
 
+
 //checking the status of video and audio
 
-var cam = document.getElementById('vid-on-calling');
-var mic = document.getElementById('mic-on-calling'); // will come back here later
+var cam = document.getElementById('vid-on-talking');
+var mic = document.getElementById('mic-on-talking'); // will come back here later
 
 ipcRenderer.send('use_video_request',undefined);
 ipcRenderer.send('use_audio_request',undefined);
@@ -38,16 +39,7 @@ ipcRenderer.on('use_audio', (event,data)=>{
     }
 });
 
-setInterval(()=>{
-    ipcRenderer.send("correspondent_name_request", undefined);
-}, 700);
 
-ipcRenderer.on("correspondent_name", (event,arg)=>{
-    var title = document.getElementById('call_title');
-    title.innerHTML= `Calling ${arg} ...`;
-});
-
-//toggling video and audio
 function vidImage(element) {
     element.src = element.bln ? "./Images/video-on.svg" : "./Images/video-off.svg";
     element.bln = !element.bln;  /* assigns opposite boolean value always */
@@ -61,12 +53,7 @@ function micImage(element) {
     ipcRenderer.send("toggle_mic",!element.bln);
 }
 
-function cancelCall() {
-    console.log("Call cancelled.");
-    ipcRenderer.send("call_cancel", undefined);
+function finishCall() {
+    console.log("Call ended.");
+    ipcRenderer.send("call_finish", undefined);
 }
-
-//remind main to check if the call is accepted
-setInterval(()=>{
-    ipcRenderer.send("call_accepted_request",undefined);
-}, 200);

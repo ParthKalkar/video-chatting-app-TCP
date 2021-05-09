@@ -134,5 +134,6 @@ class SendFrameThread(threading.Thread):
             th.join()
 
         cap.release()
+        s.shutdown(socket.SHUT_RDWR)
         s.close()
         print('Exiting video server.')
