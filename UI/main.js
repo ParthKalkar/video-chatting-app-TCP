@@ -79,6 +79,7 @@ app.on('ready', function(){
     ipcMain.on("accept_call", (event,call_accepted)=>{
         if(call_accepted){
             backend.client.set("incoming_status", "accepted");
+            backend.client.set("status", "call");
             mainwindow.loadURL(url.format({
                 pathname: path.join(__dirname, 'on-call.html'),
                 protocol:'file:', 
@@ -87,6 +88,7 @@ app.on('ready', function(){
         }
         else{
             backend.client.set("incoming_status", "declined");
+            backend.client.set("status", "home");
             mainwindow.loadURL(url.format({
                 pathname: path.join(__dirname, 'home.html'),
                 protocol:'file:', 
