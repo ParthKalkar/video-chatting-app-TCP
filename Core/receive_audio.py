@@ -26,7 +26,7 @@ def new_connection(ip):
     return s
 
 
-def receive_audio(s):
+def receive_audio(s: socket.socket, r):
     audio_data = s.recv(CHUNK)
     while 1:  # audio_data != "": # todo check which condition is better for the while loop
         global audio_buffer
@@ -38,15 +38,21 @@ def receive_audio(s):
         except socket.error:
             print("Audio receiver : Server disconnected.")
             break
+        status = r.get("status").decode("utf-8")
+        if status != "call":
+            s.shutdown(socket.SHUT_RDWR)
+            s.close()
+            break
 
 
 class ReceiveAudioFrameThread(threading.Thread):
-    def __init__(self, thread_id, name, counter, correspondent_ip):
+    def __init__(self, thread_id, name, counter, correspondent_ip, r: redis.Redis):
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
         self.counter = counter
         self.correspondent_ip = correspondent_ip
+        self.r = r
 
     def run(self) -> None:
 
@@ -54,7 +60,7 @@ class ReceiveAudioFrameThread(threading.Thread):
 
         for i in range(parallel_connections):
             s = new_connection(self.correspondent_ip)
-            new_thread = threading.Thread(target=receive_audio, args=(s,))
+            new_thread = threading.Thread(target=receive_audio, args=(s, self.r, ))
             new_thread.start()
             threads.append(new_thread)
 

@@ -47,7 +47,7 @@ def new_connection(ip):
     return s
 
 
-def receive_frames(s, connection_id):
+def receive_frames(s: socket.socket, connection_id, r: redis.Redis):
     size = s.recv(1024)
 
     global frame_size
@@ -59,7 +59,15 @@ def receive_frames(s, connection_id):
 
     while True:
         global video_buffer
+        status = r.get("status").decode("utf-8")
+        if status != "call":
+            s.shutdown(socket.SHUT_RDWR)
+            s.close()
+            break
         packet = s.recv(4096)
+
+        # todo solve the case when we are waiting for a packet (server should send "BYE")
+
         if not packet:
             print("Video receiver : No packet received !!!! Exiting the child video receiving thread.")
             break
@@ -114,16 +122,17 @@ def receive_frames(s, connection_id):
         video_buffer_lock[connection_id].release()
         time.sleep(0.001)
     print('Video receiver : Exiting child video receiving thread.')
-    s.close()
+    # s.close()
 
 
 class ReceiveFrameThread(threading.Thread):
-    def __init__(self, thread_id, name, counter, correspondent_ip):
+    def __init__(self, thread_id, name, counter, correspondent_ip, r):
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
         self.counter = counter
         self.correspondent_ip = correspondent_ip
+        self.r = r
 
     def run(self):
         init_locks_and_buffers(parallel_connections)
@@ -132,7 +141,7 @@ class ReceiveFrameThread(threading.Thread):
         connection_threads = []
         for i in range(parallel_connections):
             s = new_connection(self.correspondent_ip)
-            new_thread = threading.Thread(target=receive_frames, args=(s, i,))
+            new_thread = threading.Thread(target=receive_frames, args=(s, i, self.r,))
             new_thread.start()
             print("Video receiver : Child thread started.")
             connection_threads.append(new_thread)

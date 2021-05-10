@@ -14,7 +14,7 @@ def start_audio_server(r):
 
 
 def start_audio_receiver(correspondent_ip, r):
-    t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3, correspondent_ip)
+    t3 = ReceiveAudioFrameThread(3, 'Receive Audio', 3, correspondent_ip, r)
     t4 = PlayAudioThread(4, "Play Audio", 4, r)
     t3.start()
     t4.start()
@@ -102,7 +102,7 @@ class CallListeningThread(threading.Thread):
         msg = connection.recv(1024)
         print(f"From {address} : {msg.decode('utf-8')}")
 
-        t1 = ReceiveFrameThread(1, "Receive frame", 1, correspondent_ip)
+        t1 = ReceiveFrameThread(1, "Receive frame", 1, correspondent_ip, self.r)
         t2 = DisplayFrameThread(2, "Display frame", 2, self.r)
 
         t1.start()

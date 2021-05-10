@@ -146,7 +146,7 @@ def backend_server_redis():
             if calling_status == "ringing":
                 continue
             elif calling_status in ["line_busy", "cancelled", "declined", "error"]:
-                go_online(current_username,get_my_private_ip())
+                go_online(current_username, get_my_private_ip())
                 r.set("status", "home")
             elif calling_status == "accepted":
                 r.set("status", 'call')
