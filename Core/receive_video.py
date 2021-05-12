@@ -239,8 +239,8 @@ class DisplayFrameThread(threading.Thread):
                 self.r.set("other_webcam", frame_base64)
 
                 # Old way of displaying (keep while developing)
-                cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
-                cv2.imshow('frame', frame)
-                cv2.waitKey(1)
+                # cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
+                # cv2.imshow('frame', frame)
+                # cv2.waitKey(1)
 
         print("Exiting video playing thread.")

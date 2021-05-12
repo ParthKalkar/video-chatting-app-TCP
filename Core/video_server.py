@@ -82,15 +82,9 @@ def video_stream(connection, cap, r: redis.Redis):
         video_cap_lock.acquire()
         ret, frame = cap.read()
         video_cap_lock.release()
-
-        frame = resize_image(frame, scaling_ratio)
         if not ret:
             print("Video server : ERROR : couldn't read from webcam ! (Unknown reason)")
             break
-        frame = pickle.dumps(frame)
-        frame_count += 1
-
-        connection.sendall(frame)
 
         # Display it to the user
 
@@ -98,6 +92,14 @@ def video_stream(connection, cap, r: redis.Redis):
         content = encoded_image.tobytes()  # convert to bytes
         frame_base64 = base64.b64encode(content).decode('ascii')  # base 64 ascii
         r.set("own_webcam", frame_base64)
+
+        # Send it to the other user
+
+        frame = resize_image(frame, scaling_ratio)
+        frame = pickle.dumps(frame)
+        frame_count += 1
+
+        connection.sendall(frame)
        
         time.sleep(0.001)  # Making this bigger reduces the dance mode bug
 

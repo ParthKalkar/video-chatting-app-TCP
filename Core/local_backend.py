@@ -81,6 +81,8 @@ def backend_server_redis():
     r.set("correspondent_name", "")
     r.set("current_video_frame", "")
     r.set("python_status", "ON")
+    r.set("own_webcam", "")
+    r.set("other_webcam", "")
 
     current_username = ""
     online_list_listener_thread = threading.Thread(target=online_list_listener, args=(r,))
