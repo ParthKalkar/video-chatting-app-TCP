@@ -183,6 +183,12 @@ ipcMain.on('next_frame_request', (event,data)=>{
     })
 });
 
+ipcMain.on('own_frame_request', (event,data)=>{
+    backend.client.get('own_webcam', (err, val)=>{
+        event.sender.send('own_frame', val);
+    })
+});
+
 
 
 console.log("Hello after the app got ready")

@@ -4,6 +4,7 @@ import cv2
 import pickle
 from datetime import datetime
 import redis
+import base64
 
 MAX_LATENCY = 0.09  # The maximum allowed latency in seconds
 
@@ -90,8 +91,15 @@ def video_stream(connection, cap, r: redis.Redis):
         frame_count += 1
 
         connection.sendall(frame)
+
+        # Display it to the user
+
+        success, encoded_image = cv2.imencode('.jpg', frame)  # encode in jpg
+        content = encoded_image.tobytes()  # convert to bytes
+        frame_base64 = base64.b64encode(content).decode('ascii')  # base 64 ascii
+        r.set("own_webcam", frame_base64)
        
-        time.sleep(0.01)  # Making this bigger reduces the dance mode bug
+        time.sleep(0.001)  # Making this bigger reduces the dance mode bug
 
     connection.close()
     # cap.release()

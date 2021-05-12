@@ -58,9 +58,11 @@ function finishCall() {
     ipcRenderer.send("call_finish", undefined);
 }
 
+// for receiving the next frame of the correspondent
+
 setInterval(()=>{
     ipcRenderer.send("next_frame_request",undefined)
-}, 30)
+}, 18) // almost 60FPS
 
 ipcRenderer.on("next_frame", (event,val)=>{
     var image = document.getElementById('other_webcam')
@@ -70,5 +72,22 @@ ipcRenderer.on("next_frame", (event,val)=>{
     else
     {
         image.src = "./Images/Image-large-call.png"+val;
+    }
+})
+
+// to receive the next frame of the user's own camera
+
+setInterval(()=>{
+    ipcRenderer.send("own_frame_request",undefined)
+}, 18)
+
+ipcRenderer.on("own_frame", (event,val)=>{
+    var image = document.getElementById('own_webcam')
+    if(val!=""){
+        image.src = "data:image/jpg;base64,"+val;
+    }
+    else
+    {
+        image.src = "./Images/Image-small-call.png"+val;
     }
 })
