@@ -88,13 +88,10 @@ def video_stream(connection, cap, r: redis.Redis):
             break
         frame = pickle.dumps(frame)
         frame_count += 1
-        before_transmission = datetime.now()
+
         connection.sendall(frame)
-        transmission_delay = datetime.now() - before_transmission
-        transmission_delay = transmission_delay.total_seconds()
-        if frame_count == 24:
-            print("Video server : The transmission delay is : " + str(transmission_delay))
-        time.sleep(0.001)  # todo not sure if this helps, or if the transmission delay is even relevant
+       
+        time.sleep(0.01)  # Making this bigger reduces the dance mode bug
 
     connection.close()
     # cap.release()
