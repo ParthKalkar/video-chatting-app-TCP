@@ -1,3 +1,5 @@
+import base64
+
 from root import *
 import cv2
 import time
@@ -167,7 +169,8 @@ class DisplayFrameThread(threading.Thread):
         # This is to make sure buffers are initialized before reading frames
         while not buffer_ready:
             time.sleep(0.05)
-
+        global video_buffer
+        global frame_size
         while 1:
             status = self.r.get("status").decode('utf-8')
             if status == "quit":
@@ -176,10 +179,14 @@ class DisplayFrameThread(threading.Thread):
             show_video = self.r.get("show_video").decode("utf-8")
             if show_video == "FALSE":
                 # todo make this display a profile image
+                self.r.set("other_webcam", "")
+                for i in range(parallel_connections):
+                    video_buffer_lock[i].acquire()
+                    video_buffer[i] = b""
+                    video_buffer_lock[i].release()
                 continue
             for i in range(parallel_connections):
-                global video_buffer
-                global frame_size
+
                 if len(video_buffer[i]) < len(bytes("NEW_FRAME_SIZE", 'utf-8')):
                     continue
                 video_buffer_lock[i].acquire()
@@ -224,6 +231,14 @@ class DisplayFrameThread(threading.Thread):
                 video_buffer_lock[i].release()
 
                 frame = pickle.loads(next_frame)
+
+                # Send the frame to Redis
+                success, encoded_image = cv2.imencode('.jpg', frame)  # encode in jpg
+                content = encoded_image.tobytes()  # convert to bytes
+                frame_base64 = base64.b64encode(content).decode('ascii')  # base 64 ascii
+                self.r.set("other_webcam", frame_base64)
+
+                # Old way of displaying (keep while developing)
                 cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
                 cv2.imshow('frame', frame)
                 cv2.waitKey(1)

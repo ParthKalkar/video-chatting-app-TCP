@@ -177,6 +177,12 @@ ipcMain.on('use_audio_request', (event,data)=>{
     })
 })
 
+ipcMain.on('next_frame_request', (event,data)=>{
+    backend.client.get('other_webcam', (err, val)=>{
+        event.sender.send('next_frame', val);
+    })
+});
+
 
 
 console.log("Hello after the app got ready")

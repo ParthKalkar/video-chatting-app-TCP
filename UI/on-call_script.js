@@ -57,3 +57,18 @@ function finishCall() {
     console.log("Call ended.");
     ipcRenderer.send("call_finish", undefined);
 }
+
+setInterval(()=>{
+    ipcRenderer.send("next_frame_request",undefined)
+}, 30)
+
+ipcRenderer.on("next_frame", (event,val)=>{
+    var image = document.getElementById('other_webcam')
+    if(val!=""){
+        image.src = "data:image/jpg;base64,"+val;
+    }
+    else
+    {
+        image.src = "./Images/Image-large-call.png"+val;
+    }
+})
