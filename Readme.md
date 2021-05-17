@@ -13,6 +13,6 @@ Implementation of a video calling application using the TCP protocol.
 
 ## Current accomplishments
 - [x] Have a reliable video call over TCP, CLI interface.
-- [ ] Integrate the Python core with the Electron frontend using Redis.
-- [ ] Have a fancy report.
+- [x] Integrate the Python core with the Electron frontend using Redis.
+- [x] Have a fancy report.
 - [ ] Test, debug, improve, repeat.
